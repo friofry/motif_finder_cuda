@@ -26,6 +26,11 @@ add_subdirectory(cpu_lib)
 add_subdirectory(benchmark_cpu)
 #add_subdirectory(motif_finder)
 
+
+
+add_subdirectory(gpu_lib)
+add_subdirectory(benchmark_gpu)
+
 find_package( CUDA 10.0 QUIET )
 if(NOT CUDA_FOUND)
     message("CUDA 10.0 not found")

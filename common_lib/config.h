@@ -17,7 +17,7 @@
 const unsigned int MOT_PER_CHUNK = 512*64*64*4;
 
 // CUDA unified memory
-#define UNIFIED_MEMORY_SUPPORT 0
+#define UNIFIED_MEMORY_SUPPORT false
 
 // CUDA threads per block
 #define THREADS_PER_BLOCK (512)
