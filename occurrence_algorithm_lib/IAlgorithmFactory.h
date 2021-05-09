@@ -3,14 +3,14 @@
 
 #include <memory>
 #include <IAlgorithm.h>
-#include <SequenceHashesParams.h>
+#include <SequenceHashes.h>
 
 class IAlgorithmFactory {
 public:
     virtual ~IAlgorithmFactory() {}
 
     // Get occurrence evaluator for specific thread
-    virtual IAlgorithmPtr create(int thread_idx, const SequenceHashesParams &hashesInfo) const = 0;
+    virtual IAlgorithmPtr create(int thread_idx, const SequenceHashes &hashesInfo) const = 0;
 
     // Get number of motifs to process
     virtual uint32_t motifsCount() const = 0;
@@ -19,5 +19,5 @@ public:
     virtual uint32_t threadsCount() const = 0;
 };
 
-using IAlgorithmPtr = std::shared_ptr<IAlgorithm>;
+using IAlgorithmFactoryPtr = std::shared_ptr<IAlgorithmFactory>;
 #endif //MOTIF_FINDER_IALGORITHM_H

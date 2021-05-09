@@ -1,20 +1,24 @@
-#include <sstream>
 #include <vector>
 #include <cstdint>
 
-#include <motif_finder_cpu_internal.h>
+#include <InternalCpuAlgorithm.h>
+#include <ExternalCpuAlgorithm.h>
+
 #include <fst_reader.h>
+#include <sequences_to_hashes.h>
 
 using namespace std;
 
 void run()
 {
-    CpuInternalParams params;
-    params.sequences = read_fasta("test.fst");
-    params.search_complementary = false;
-
+    const auto sequences = read_fasta("test.fst");
+    SequenceHashes hashesInfo = sequencesToHashes(sequences, false);
+    std::vector<uint32_t> hashes { 1, 2, 3};
     std::vector<uint16_t> res;
-    find_motifs_internal_cpu(res, params);
+    ExternalCpuAlgorithm external(hashes, hashesInfo);
+    external.getAllOccurrences(res);
+//    InternalCpuAlgorithm internal(hashesInfo);
+//    internal.getAllOccurrences(res);
 }
 
 int main(int argc, char **argv)

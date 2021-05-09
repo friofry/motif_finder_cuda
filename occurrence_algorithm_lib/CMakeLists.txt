@@ -8,7 +8,6 @@ include_directories(.)
 add_library(occurrence_algorithm_lib
         IAlgorithm.h
         IAlgorithmFactory.h
-        SequenceHashesParams.h
         MotifOccurrenceParallelEvaluator.h
         MotifOccurrenceParallelEvaluator.cpp)
 

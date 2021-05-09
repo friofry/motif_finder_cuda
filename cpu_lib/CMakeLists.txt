@@ -1,24 +1,23 @@
 cmake_minimum_required(VERSION 3.17)
-project(motif_finder_cpu CXX)
+project(cpu_lib CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 
-add_library(motif_finder_cpu
-        motif_finder_cpu_external.h
-        motif_finder_cpu_external.cpp
-        i_range_motif_finder.h
-        motif_finder_cpu_internal.h
-        motif_finder_cpu_internal.cpp
-        cpu_range_motif_finder.cpp
-        cpu_range_motif_finder.h
-        sequence_hashes_params.h)
+add_library(cpu_lib
+        CpuCommonAlgorithm.cpp
+        CpuCommonAlgorithm.h
+        ExternalCpuAlgorithm.cpp
+        ExternalCpuAlgorithm.h
+        InternalCpuAlgorithm.cpp
+        InternalCpuAlgorithm.h)
 
-add_library(lib::motif_finder_cpu ALIAS motif_finder_cpu)
+add_library(lib::cpu ALIAS cpu_lib)
 
-target_link_libraries(motif_finder_cpu
+target_link_libraries(cpu_lib
                       lib::common
-                      lib::conversion)
+                      lib::conversion
+                      lib::occurrence_algorithm_lib)
 
-target_include_directories(motif_finder_cpu PUBLIC ${PROJECT_SOURCE_DIR}/.)
+target_include_directories(cpu_lib PUBLIC ${PROJECT_SOURCE_DIR}/.)

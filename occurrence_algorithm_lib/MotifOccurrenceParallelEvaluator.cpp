@@ -7,14 +7,14 @@ using namespace std;
 
 namespace {
 void evaluateThreadFunc(std::vector<uint16_t> &outMotifOccurrences,
-                        const IAlgorithmFactory &factory,
+                        const IAlgorithmFactoryPtr &factory,
                         const SequenceHashes &hashesInfo,
                         uint32_t threadId,
                         SafeCounter &rangeCounter)
 {
-    auto evaluator = factory.create(threadId, hashesInfo);
+    auto evaluator = factory->create(threadId, hashesInfo);
 
-    const uint32_t motifRangeSize = evaluator.getDesiredRangeSize();
+    const uint32_t motifRangeSize = evaluator->getDesiredRangeSize();
     std::vector<uint16_t> occurrences(motifRangeSize, 0);
     while (true) {
         auto range_info = rangeCounter.get_and_increment_range_info(motifRangeSize);
@@ -31,27 +31,30 @@ void evaluateThreadFunc(std::vector<uint16_t> &outMotifOccurrences,
 } // namespace
 
 void evaluateMotifOccurrencesParallel(std::vector<uint16_t> &outMotifOccurrences,
-                                      const IAlgorithmFactory &algorithmFactory,
-                                      const SequenceHashesParams &sequenceHashes)
+                                      const std::vector<IAlgorithmFactoryPtr> &algorithmFactories,
+                                      const SequenceHashes &sequenceHashes,
+                                      uint32_t motifsCount)
 {
-    outMotifOccurrences.resize(algorithmFactory.motifsCount(), 0);
+    outMotifOccurrences.resize(motifsCount, 0);
 
     // Run in parallel
-    SafeCounter rangeCounter(params.motif_hashes.size());
-
+    SafeCounter rangeCounter(motifsCount);
     vector<thread> threads;
-    int thread_count = algorithmFactory.threadsCount() ? algorithmFactory.threadsCount() : 1;
-    for (int i = 0; i < thread_count; i++) {
-        threads.push_back(std::thread(evaluateThreadFunc,
-                                      ref(outMotifOccurrences),
-                                      ref(algorithmFactory),
-                                      ref(sequenceHashes),
-                                      i,
-                                      ref(motifs_counter)));
+
+    for (const auto &factory: algorithmFactories) {
+        uint32_t threadCount = factory->threadsCount() ? factory->threadsCount() : 1;
+        for (uint32_t i = 0; i < threadCount; i++) {
+            threads.push_back(std::thread(evaluateThreadFunc,
+                                          ref(outMotifOccurrences),
+                                          ref(factory),
+                                          ref(sequenceHashes),
+                                          i,
+                                          ref(rangeCounter)));
+        }
     }
 
     // Wait for finished
-    for (int i = 0; i < thread_count; i++) {
+    for (uint32_t i = 0; i < threads.size(); i++) {
         threads[i].join();
     }
 }

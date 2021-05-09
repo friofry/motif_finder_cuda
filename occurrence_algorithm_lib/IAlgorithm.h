@@ -15,8 +15,12 @@ public:
     // @params outMotifWeights - array for results (of at least (end - begin) size)
     virtual void getOccurrenceInRange(uint32_t begin, uint32_t end, std::vector<uint16_t> &outMotifWeights) const = 0;
 
+    // Get all motif occurrences and store to outMotifWeights
+    // @params outMotifWeights - array for results (of at least (end - begin) size)
+    virtual void getAllOccurrences(std::vector<uint16_t> &outMotifWeights) const = 0;
+
     // Get desired motifs range
     virtual uint32_t getDesiredRangeSize() const = 0;
 };
-
+using IAlgorithmPtr = std::shared_ptr<IAlgorithm>;
 #endif // MOTIF_FINDER_I_ALGORITHM_H

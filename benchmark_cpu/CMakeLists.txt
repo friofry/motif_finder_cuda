@@ -7,6 +7,7 @@ add_executable(benchmark_cpu
         main.cpp)
 
 target_link_libraries(benchmark_cpu
-        lib::motif_finder_cpu
+        lib::cpu
+        lib::occurrence_algorithm_lib
         3rdparty::cxxopts
         )
