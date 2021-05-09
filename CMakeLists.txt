@@ -21,15 +21,12 @@ add_subdirectory(common_lib)
 add_subdirectory(conversion_lib)
 #add_subdirectory(stat_lib)
 add_subdirectory(cpu_lib)
-#add_subdirectory(finder_lib)
+#add_subdirectory(occurrence_algorithm_lib)
 #add_subdirectory(benchmark_common_lib)
 add_subdirectory(benchmark_cpu)
 #add_subdirectory(motif_finder)
+add_subdirectory(occurrence_algorithm_lib)
 
-
-
-add_subdirectory(gpu_lib)
-add_subdirectory(benchmark_gpu)
 
 find_package( CUDA 10.0 QUIET )
 if(NOT CUDA_FOUND)
