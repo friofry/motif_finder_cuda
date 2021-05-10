@@ -1,5 +1,5 @@
-#ifndef MOTIF_FINDER_INTERNALCPUALGORITHM_H
-#define MOTIF_FINDER_INTERNALCPUALGORITHM_H
+#ifndef MOTIF_FINDER_INTERNAL_CPU_ALGORITHM_H
+#define MOTIF_FINDER_INTERNAL_CPU_ALGORITHM_H
 
 #include <IAlgorithm.h>
 #include <SequenceHashes.h>
@@ -27,4 +27,15 @@ private:
     uint32_t _rangeSize;
 };
 
-#endif //MOTIF_FINDER_INTERNALCPUALGORITHM_H
+
+
+
+// Get motif occurrences and store to out_motif_weights
+// @param sequence_hashes - sequences hashes
+// @param out_motif_weights - [output] array for motif occurrences
+void internal_cpu_algorithm(const SequenceHashes &sequence_hashes,
+                            std::vector<uint16_t> &out_motif_weights);
+
+
+#endif //MOTIF_FINDER_INTERNAL_CPU_ALGORITHM_H
+

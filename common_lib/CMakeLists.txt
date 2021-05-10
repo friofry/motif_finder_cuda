@@ -16,7 +16,9 @@ set(SOURCES
         timer.h
         config.h
         fst_reader.cpp
-        fst_reader.h)
+        fst_reader.h
+        run_parallel.cpp
+        run_parallel.h)
 
 
 add_library(common_lib ${SOURCES})

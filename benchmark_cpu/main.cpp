@@ -1,24 +1,21 @@
 #include <vector>
 #include <cstdint>
 
-#include <InternalCpuAlgorithm.h>
-#include <ExternalCpuAlgorithm.h>
+#include <internal_cpu_algorithm.h>
+#include <external_cpu_algorithm.h>
 
 #include <fst_reader.h>
 #include <sequences_to_hashes.h>
+#include <run_parallel.h>
 
 using namespace std;
 
 void run()
 {
     const auto sequences = read_fasta("test.fst");
-    SequenceHashes hashesInfo = sequencesToHashes(sequences, false);
-    std::vector<uint32_t> hashes { 1, 2, 3};
-    std::vector<uint16_t> res;
-    ExternalCpuAlgorithm external(hashes, hashesInfo);
-    external.getAllOccurrences(res);
-//    InternalCpuAlgorithm internal(hashesInfo);
-//    internal.getAllOccurrences(res);
+    SequenceHashes sequence_hashes = sequences_to_hashes(sequences, false);
+    std::vector<uint16_t> occurrences;
+    internal_cpu_algorithm(sequence_hashes, occurrences);
 }
 
 int main(int argc, char **argv)

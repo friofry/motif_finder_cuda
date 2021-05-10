@@ -6,7 +6,7 @@
 
 using namespace  std;
 
-SequenceHashes sequencesToHashes(const std::vector<std::string> &sequences, bool complementary)
+SequenceHashes sequences_to_hashes(const std::vector<std::string> &sequences, bool complementary)
 {
     SequenceHashes ret;
     ret.count = sequences.size();

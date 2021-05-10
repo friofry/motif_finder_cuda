@@ -6,12 +6,12 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(.)
 
 add_library(cpu_lib
-        CpuCommonAlgorithm.cpp
-        CpuCommonAlgorithm.h
-        ExternalCpuAlgorithm.cpp
-        ExternalCpuAlgorithm.h
-        InternalCpuAlgorithm.cpp
-        InternalCpuAlgorithm.h)
+        cpu_common_algorithm.cpp
+        cpu_common_algorithm.h
+        external_cpu_algorithm.cpp
+        external_cpu_algorithm.h
+        internal_cpu_algorithm.cpp
+        internal_cpu_algorithm.h)
 
 add_library(lib::cpu ALIAS cpu_lib)
 
