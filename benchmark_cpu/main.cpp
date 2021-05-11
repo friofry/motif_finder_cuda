@@ -6,7 +6,6 @@
 
 #include <fst_reader.h>
 #include <sequences_to_hashes.h>
-#include <run_parallel.h>
 
 using namespace std;
 

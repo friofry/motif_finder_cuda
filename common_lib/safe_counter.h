@@ -51,6 +51,9 @@ public:
         uint32_t start;
         uint32_t end;
         uint32_t idx;
+        uint32_t count() {
+            return end > start ? (end - start) : 0;
+        }
     };
     RangeInfo get_and_increment_range_info(unsigned int count)
     {
