@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(benchmark_gpu CXX)
+project(benchmark_gpu CUDA CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 

@@ -17,7 +17,7 @@ struct TestParams {
     std::vector<int> unified_memory;
 };
 
-struct RunParams {
+struct GpuRunParams {
     int count {0};
     int length{0};
     int gpus{0};
@@ -31,7 +31,7 @@ struct RunParams {
 };
 
 TestParams parse_gpu_input_args(int argc, char **argv);
-std::string gpu_result_json(const RunParams &params, float result, unsigned int motifs_count);
+std::string gpu_result_json(const GpuRunParams &params, float result, unsigned int motifs_count);
 std::string combine_results_json(const std::vector<std::string> &results);
 
 #endif //MOTIF_FINDER_CMD_PARSER_H

@@ -33,7 +33,8 @@ set_target_properties(
 
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:${COMMON_NVCC_FLAGS}>)
 target_link_libraries(${PROJECT_NAME}
-        lib::common)
+        lib::common
+        lib::conversion)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/.)
 target_include_directories(${PROJECT_NAME} PRIVATE .)

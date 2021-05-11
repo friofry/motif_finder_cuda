@@ -33,6 +33,12 @@ std::string run(const vector<uint32_t> &motif_hashes, const SequenceHashes &sequ
     Timer t;
     t.silence();
 
+    GpuCudaParams cuda_params;
+    cuda_params.gpu_count = params.gpus;
+    cuda_params.unified_memory = params.unified_memory;
+    cuda_params.threads_per_block = params.threads_per_block;
+    cuda_params.motif_range_size = params.motif_chunk_size;
+
     if (params.algorithm == "internal") {
         std::vector<uint16_t> occurrences;
         internal_gpu_algorithm(sequence_hashes, occurrences, cuda_params);
@@ -104,7 +110,7 @@ int main(int argc, char **argv)
                                 for (int threads_per_block : params.threads_per_block) {
                                     for (int chunk_size : params.chunk_sizes) {
                                         for (bool unified_mem : params.unified_memory) {
-                                            RunParams cur_params;
+                                            GpuRunParams cur_params;
                                             cur_params.count = count;
                                             cur_params.length = length;
                                             cur_params.gpus = gpu_count;

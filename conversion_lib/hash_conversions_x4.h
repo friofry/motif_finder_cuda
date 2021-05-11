@@ -2,6 +2,7 @@
 #define MOTIF_FINDER_HASH_CONVERSIONS_X4_H
 
 #include <vector>
+#include <cstdint>
 
 /// предрассчитать хэши для всех возможны 4-буквенных индексов
 std::vector<uint32_t> calc_hash_x4();

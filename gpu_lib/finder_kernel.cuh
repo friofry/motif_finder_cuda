@@ -1,8 +1,10 @@
 #ifndef MOTIF_FINDER_FINDER_KERNEL_CUH
 #define MOTIF_FINDER_FINDER_KERNEL_CUH
+#include <sequence_hashes.h>
 
+#include "gpu_memory.h"
 #include "gpu_cuda_params.h"
-#include "sequence_hashes.h"
+
 
 // these are wrapper functions for cuda kernels
 
@@ -12,10 +14,7 @@ public:
     GpuExternalMemory(const GpuCudaParams &params, const SequenceHashes &sequence_hashes);
     ~GpuExternalMemory();
 
-    GpuExternalMemory(const GpuExternalMemory &) = deleted;
-    GpuExternalMemory &operator=(const GpuExternalMemory &) = deleted;
-
-    GpuMemoryPtr allocator;
+    GpuMemoryPtr alloc;
     uint32_t shared_memory_size {0};
     uint32_t sequences_count {0};
     uint32_t weights_count {0};
@@ -28,7 +27,7 @@ public:
 };
 
 void motif_finder_gpu_external(
-    const std::vector<uint32_t> &_motif_hashes
+    const std::vector<uint32_t> &_motif_hashes,
     const GpuExternalMemory &gpu_mem,
     const GpuCudaParams &params,
     std::vector<uint16_t> &out_motif_weights,
@@ -42,10 +41,7 @@ public:
     GpuInternalMemory(const GpuCudaParams &params, const SequenceHashes &sequence_hashes);
     ~GpuInternalMemory();
 
-    GpuInternalMemory(const GpuInternalMemory &) = deleted;
-    GpuInternalMemory &operator=(const GpuInternalMemory &) = deleted;
-
-    GpuMemoryPtr allocator;
+    GpuMemoryPtr alloc;
     uint32_t shared_memory_size {0};
     uint32_t sequences_count {0};
     uint32_t weights_count {0};

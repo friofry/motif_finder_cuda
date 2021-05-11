@@ -1,4 +1,5 @@
 #include "sequence_generator.h"
+#include <stdexcept>
 
 #include <letter_conversions.h>
 #include <fst_reader.h>

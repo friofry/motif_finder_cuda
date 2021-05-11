@@ -1,5 +1,7 @@
 #include "internal_gpu_algorithm.h"
 
+#include <thread>
+
 #include <config.h>
 #include <hash_conversions.h>
 #include <run_parallel.h>
@@ -14,7 +16,7 @@ void internal_gpu_algorithm(const SequenceHashes &sequence_hashes,
                             const GpuCudaParams &params)
 {
     out_motif_weights.resize(TOTAL_MOT, 0);
-    threads = (threads > 0) ? threads : std::thread::hardware_concurrency();
+    uint32_t threads = (params.gpu_count > 0) ? params.gpu_count : std::thread::hardware_concurrency();
 
     SafeCounter motifs_counter(TOTAL_MOT);
 

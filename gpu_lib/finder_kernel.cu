@@ -1,6 +1,14 @@
 #include "finder_kernel.cuh"
 
+#include <algorithm>
+#include <cstdint>
+
+#include <cuda_runtime_api.h>
+#include <cuda.h>
+
+
 #include "gpu_memory.h"
+
 
 namespace {
 __device__ uint16_t get_occurrence(uint32_t motif_hash,
@@ -31,7 +39,7 @@ __device__ uint16_t get_occurrence(uint32_t motif_hash,
         __syncthreads();
         // Match motif to sequence
         uint8_t found = 0;
-        for (uint32_t i = 0; (i < length) && !found; i++) {
+        for (uint32_t i = 0; (i < seq_length) && !found; i++) {
             found = (sequence[i] & motif_hash) == sequence[i];
         }
         result += found;
@@ -40,60 +48,91 @@ __device__ uint16_t get_occurrence(uint32_t motif_hash,
     return result;
 }
 
- __device__ uint32_t motif_index_to_hash(uint32_t motif_index) {
-     uint32_t result = 0;
-     uint32_t mult = 1;
-     for (uint32_t i = MOTIV_LEN - 1; i >= 0; i--) {
-         result += (motif_index % ALPH_SIZE + 1) * mult;
-         mult *= HASH_BASE;
-         motif_index /= ALPH_SIZE;
-     }
-     return result;
- }
+__device__ uint32_t motif_index_to_hash(uint32_t motif_index)
+{
+    uint32_t result = 0;
+    uint32_t mult = 1;
+    for (uint32_t i = MOTIV_LEN - 1; i > 0; i--) {
+        result += (motif_index % ALPH_SIZE + 1) * mult;
+        mult *= HASH_BASE;
+        motif_index /= ALPH_SIZE;
+    }
+    return result;
+}
 
-__global__ void motif_finder_kernel_external(
-        uint16_t *weights_out,
-        uint32_t *seq_hashes,
-        uint32_t sequences_count,
-        uint32_t *hash_lengths,
-        uint32_t *hash_begins,
-        uint32_t *mot_hashes,
-        uint32_t mots_to_copy,
-        uint32_t threads_per_block)
+__global__ void motif_finder_kernel_external(uint16_t *weights_out,
+                                             uint32_t *seq_hashes,
+                                             uint32_t sequences_count,
+                                             uint32_t *hash_lengths,
+                                             uint32_t *hash_begins,
+                                             uint32_t *mot_hashes,
+                                             uint32_t mots_to_copy,
+                                             uint32_t threads_per_block)
 {
     uint32_t index = blockIdx.x * blockDim.x + threadIdx.x;
     uint32_t motif_hash = (index <= mots_to_copy) ? mot_hashes[index] : 0;
-    weights_out[index] = get_occurrence(motif_hash, seq_hashes, sequences_count, hash_lengths, hash_begins, threads_per_block);
+    weights_out[index]
+        = get_occurrence(motif_hash, seq_hashes, sequences_count, hash_lengths, hash_begins, threads_per_block);
 }
 
-__global__ void motif_finder_kernel_internal(
-        uint16_t *weights_out,
-        uint32_t *seq_hashes,
-        uint32_t sequences_count,
-        uint32_t *hash_lengths,
-        uint32_t *hash_begins,
-        uint32_t mots_to_copy,
-        uint32_t motif_idx_offset,
-        uint32_t threads_per_block)
+__global__ void motif_finder_kernel_internal(uint16_t *weights_out,
+                                             uint32_t *seq_hashes,
+                                             uint32_t sequences_count,
+                                             uint32_t *hash_lengths,
+                                             uint32_t *hash_begins,
+                                             uint32_t mots_to_copy,
+                                             uint32_t motif_idx_offset,
+                                             uint32_t threads_per_block)
 {
     uint32_t index = blockIdx.x * blockDim.x + threadIdx.x;
     uint32_t motif_hash = (index <= mots_to_copy) ? motif_index_to_hash(motif_idx_offset + index) : 0;
-    weights_out[index] = get_occurrence(motif_hash, seq_hashes, sequences_count, hash_lengths, hash_begins, threads_per_block);
+    weights_out[index]
+        = get_occurrence(motif_hash, seq_hashes, sequences_count, hash_lengths, hash_begins, threads_per_block);
+}
+
+// Create a new device memory, fill it from host src memory, or with zeroes
+// @param mem - memory alloc
+// @param count - number of elements
+// @param src - if null, fill with zeroes, otherwise copy from the host memory to device memory
+uint32_t *init_uint32_memory(const GpuMemoryPtr &mem, uint32_t count, const uint32_t *src = nullptr)
+{
+    uint32_t *result_dev;
+    uint32_t result_dev_bytes = count * sizeof(uint32_t);
+    mem->MALLOC((void **)&result_dev, result_dev_bytes);
+    if (src) {
+        mem->MEMCPY_TO_DEVICE(result_dev, src, result_dev_bytes);
+    } else {
+        mem->MEMSET(result_dev, 0, result_dev_bytes);
+    }
+    return result_dev;
+}
+
+uint16_t *init_uint16_memory(const GpuMemoryPtr &mem, uint32_t count, const uint16_t *src = nullptr)
+{
+    uint16_t *result_dev;
+    uint32_t result_dev_bytes = count * sizeof(uint16_t);
+    mem->MALLOC((void **)&result_dev, result_dev_bytes);
+    if (src) {
+        mem->MEMCPY_TO_DEVICE(result_dev, src, result_dev_bytes);
+    } else {
+        mem->MEMSET(result_dev, 0, result_dev_bytes);
+    }
+    return result_dev;
 }
 } // namespace
 
-
 GpuExternalMemory::GpuExternalMemory(const GpuCudaParams &params, const SequenceHashes &sequence_hashes)
 {
-    allocator = create_memory_allocator(params.unified_memory);
+    alloc = create_memory_allocator(params.unified_memory);
 
-    weights_out = allocate_on_device_and_init<uint16_t>(allocator->get(), params.motif_range_size, nullptr);
-    seq_hashes = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.hashes.size(), &(sequence_hashes.hashes[0]));
-    seq_lengths = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.lengths.size(), &(sequence_hashes.lengths[0]));
-    seq_begins = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.seq_begins.size(), &(sequence_hashes.seq_begins[0]));
-    motif_hashes = allocate_on_device_and_init<uint32_t>(allocator->get(), params.motif_range_size, nullptr);
+    weights_out = init_uint16_memory(alloc, params.motif_range_size, nullptr);
+    seq_hashes = init_uint32_memory(alloc, sequence_hashes.hashes.size(), &(sequence_hashes.hashes[0]));
+    seq_lengths = init_uint32_memory(alloc, sequence_hashes.lengths.size(), &(sequence_hashes.lengths[0]));
+    seq_begins = init_uint32_memory(alloc, sequence_hashes.seq_begins.size(), &(sequence_hashes.seq_begins[0]));
+    motif_hashes = init_uint32_memory(alloc, params.motif_range_size, nullptr);
     sequences_count = sequence_hashes.count;
-    shared_memory_size = std::max_element(sequence_hashes.lengths.begin(), sequence_hashes.lengths.end()) * sizeof(uint32_t);
+    shared_memory_size
+        = *std::max_element(sequence_hashes.lengths.begin(), sequence_hashes.lengths.end()) * sizeof(uint32_t);
     weights_count = params.motif_range_size;
 }
 
@@ -108,44 +147,43 @@ GpuExternalMemory::~GpuExternalMemory()
     sequences_count = 0;
 }
 
-void motif_finder_gpu_external(
-    const std::vector<uint32_t> &motif_hashes,
-    const GpuExternalMemory &mem,
-    const GpuCudaParams &params,
-    std::vector<uint16_t> &out_motif_weights,
-    uint32_t motif_offset,
-    uint32_t motifs_count,
-    int device_id)
+void motif_finder_gpu_external(const std::vector<uint32_t> &motif_hashes,
+                               const GpuExternalMemory &mem,
+                               const GpuCudaParams &params,
+                               std::vector<uint16_t> &out_motif_weights,
+                               uint32_t motif_offset,
+                               uint32_t motifs_count,
+                               int device_id)
 {
     cudaSetDevice(device_id);
-
-    mem.allocator->MEMCPY_TO_DEVICE(mem.motif_hashes, &motif_hashes[motif_offset],  motifs_count * sizeof(uint32_t));
-    motif_finder_kernel_external<<<params.motif_range_size/params.threads_per_block, params.threads_per_block, mem.shared_memory_size>>>(
-        mem.weights_out,
-        mem.seq_hashes,
-        mem.sequences_count,
-        mem.seq_lengths,
-        mem.seq_begins,
-        mem.motif_hashes,
-        motifs_count,
-        motif_offset,
-        params.threads_per_block);
+    mem.alloc->MEMCPY_TO_DEVICE(mem.motif_hashes, &motif_hashes[motif_offset], motifs_count * sizeof(uint32_t));
+    motif_finder_kernel_external<<<params.motif_range_size / params.threads_per_block,
+                                   params.threads_per_block,
+                                   mem.shared_memory_size>>>(mem.weights_out,
+                                                             mem.seq_hashes,
+                                                             mem.sequences_count,
+                                                             mem.seq_lengths,
+                                                             mem.seq_begins,
+                                                             mem.motif_hashes,
+                                                             motifs_count,
+                                                             params.threads_per_block);
     cudaDeviceSynchronize();
-    mem.allocator->MEMCPY_TO_HOST(&(out_motif_weights[motif_offset]), mem.weights_out, motifs_count * sizeof(uint16_t));
+    mem.alloc->MEMCPY_TO_HOST(&(out_motif_weights[motif_offset]), mem.weights_out, motifs_count * sizeof(uint16_t));
 }
 
 // INTERNAL
 
 GpuInternalMemory::GpuInternalMemory(const GpuCudaParams &params, const SequenceHashes &sequence_hashes)
 {
-    allocator = create_memory_allocator(params.unified_memory);
+    alloc = create_memory_allocator(params.unified_memory);
 
-    weights_out = allocate_on_device_and_init<uint16_t>(allocator->get(), params.motif_range_size, nullptr);
-    seq_hashes = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.hashes.size(), &(sequence_hashes.hashes[0]));
-    seq_lengths = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.lengths.size(), &(sequence_hashes.lengths[0]));
-    seq_begins = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.seq_begins.size(), &(sequence_hashes.seq_begins[0]));
+    weights_out = init_uint16_memory(alloc, params.motif_range_size, nullptr);
+    seq_hashes = init_uint32_memory(alloc, sequence_hashes.hashes.size(), &(sequence_hashes.hashes[0]));
+    seq_lengths = init_uint32_memory(alloc, sequence_hashes.lengths.size(), &(sequence_hashes.lengths[0]));
+    seq_begins = init_uint32_memory(alloc, sequence_hashes.seq_begins.size(), &(sequence_hashes.seq_begins[0]));
     sequences_count = sequence_hashes.count;
-    shared_memory_size = std::max_element(sequence_hashes.lengths.begin(), sequence_hashes.lengths.end()) * sizeof(uint32_t);
+    shared_memory_size
+        = *std::max_element(sequence_hashes.lengths.begin(), sequence_hashes.lengths.end()) * sizeof(uint32_t);
     weights_count = params.motif_range_size;
 }
 
@@ -159,24 +197,24 @@ GpuInternalMemory::~GpuInternalMemory()
     sequences_count = 0;
 }
 
-void motif_finder_gpu_internal(
-    const GpuInternalMemory &mem,
-    const GpuCudaParams &params,
-    std::vector<uint16_t> &out_motif_weights,
-    uint32_t motif_idx_offset,
-    uint32_t motifs_count,
-    int device_id)
+void motif_finder_gpu_internal(const GpuInternalMemory &mem,
+                               const GpuCudaParams &params,
+                               std::vector<uint16_t> &out_motif_weights,
+                               uint32_t motif_idx_offset,
+                               uint32_t motifs_count,
+                               int device_id)
 {
     cudaSetDevice(device_id);
-    motif_finder_kernel_internal<<<params.motif_range_size/params.threads_per_block, params.threads_per_block, mem.shared_memory_size>>>(
-        mem.weights_out,
-        mem.seq_hashes,
-        mem.sequences_count,
-        mem.seq_lengths,
-        mem.seq_begins,
-        motifs_count,
-        motif_idx_offset,
-        params.threads_per_block);
+    motif_finder_kernel_internal<<<params.motif_range_size / params.threads_per_block,
+                                   params.threads_per_block,
+                                   mem.shared_memory_size>>>(mem.weights_out,
+                                                             mem.seq_hashes,
+                                                             mem.sequences_count,
+                                                             mem.seq_lengths,
+                                                             mem.seq_begins,
+                                                             motifs_count,
+                                                             motif_idx_offset,
+                                                             params.threads_per_block);
     cudaDeviceSynchronize();
-    mem.allocator->MEMCPY_TO_HOST(&(out_motif_weights[motif_idx_offset]), mem.weights_out, motifs_count * sizeof(uint16_t));
+    mem.alloc->MEMCPY_TO_HOST(&(out_motif_weights[motif_idx_offset]), mem.weights_out, motifs_count * sizeof(uint16_t));
 }

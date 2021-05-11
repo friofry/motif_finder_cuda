@@ -2387,7 +2387,7 @@ using is_detected_convertible =
 
 #include <cstdint> // int64_t, uint64_t
 #include <map> // map
-#include <memory> // allocator
+#include <memory> // alloc
 #include <string> // string
 #include <vector> // vector
 
@@ -14640,7 +14640,7 @@ default; will be used in @ref number_integer_t)
 `uint64_t` by default; will be used in @ref number_unsigned_t)
 @tparam NumberFloatType type for JSON floating-point numbers (`double` by
 default; will be used in @ref number_float_t)
-@tparam AllocatorType type of the allocator to use (`std::allocator` by
+@tparam AllocatorType type of the alloc to use (`std::alloc` by
 default)
 @tparam JSONSerializer the serializer to resolve internal calls to `to_json()`
 and `from_json()` (@ref adl_serializer by default)
@@ -14808,7 +14808,7 @@ class basic_json
     /// a type to represent container sizes
     using size_type = std::size_t;
 
-    /// the allocator type
+    /// the alloc type
     using allocator_type = AllocatorType<basic_json>;
 
     /// the type of an element pointer
@@ -14829,7 +14829,7 @@ class basic_json
 
 
     /*!
-    @brief returns the allocator associated with the container
+    @brief returns the alloc associated with the container
     */
     static allocator_type get_allocator()
     {
@@ -14952,13 +14952,13 @@ class basic_json
     @tparam StringType the type of the keys or names (e.g., `std::string`).
     The comparison function `std::less<StringType>` is used to order elements
     inside the container.
-    @tparam AllocatorType the allocator to use for objects (e.g.,
-    `std::allocator`)
+    @tparam AllocatorType the alloc to use for objects (e.g.,
+    `std::alloc`)
 
     #### Default type
 
     With the default values for @a ObjectType (`std::map`), @a StringType
-    (`std::string`), and @a AllocatorType (`std::allocator`), the default
+    (`std::string`), and @a AllocatorType (`std::alloc`), the default
     value for @a object_t is:
 
     @code {.cpp}
@@ -14966,7 +14966,7 @@ class basic_json
       std::string, // key_type
       basic_json, // value_type
       std::less<std::string>, // key_compare
-      std::allocator<std::pair<const std::string, basic_json>> // allocator_type
+      std::alloc<std::pair<const std::string, basic_json>> // allocator_type
     >
     @endcode
 
@@ -15036,17 +15036,17 @@ class basic_json
 
     @tparam ArrayType  container type to store arrays (e.g., `std::vector` or
     `std::list`)
-    @tparam AllocatorType allocator to use for arrays (e.g., `std::allocator`)
+    @tparam AllocatorType alloc to use for arrays (e.g., `std::alloc`)
 
     #### Default type
 
     With the default values for @a ArrayType (`std::vector`) and @a
-    AllocatorType (`std::allocator`), the default value for @a array_t is:
+    AllocatorType (`std::alloc`), the default value for @a array_t is:
 
     @code {.cpp}
     std::vector<
       basic_json, // value_type
-      std::allocator<basic_json> // allocator_type
+      std::alloc<basic_json> // allocator_type
     >
     @endcode
 

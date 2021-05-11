@@ -1,5 +1,8 @@
 #ifndef MOTIF_FINDER_GPU_CUDA_PARAMS_H
 #define MOTIF_FINDER_GPU_CUDA_PARAMS_H
+
+#include <cstdint>
+
 #include <config.h>
 
 struct GpuCudaParams {

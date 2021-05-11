@@ -70,7 +70,7 @@ TestParams parse_gpu_input_args(int argc, char **argv)
     res.seq_lengths = parse_int_vec(r, "lengths", {10});
     res.gpu_counts = parse_int_vec(r, "gpu_counts", {1});
     res.complementary = parse_int_vec(r, "complementary", {0});
-    res.algorithms = parse_string_vec(r, "algorithms", {"gpu_naive_full"});
+    res.algorithms = parse_string_vec(r, "algorithms", {"internal"});
     res.sequences_file = parse_string_param(r, "sequencesfile", "");
     res.threads_per_block = parse_int_vec(r, "threads_per_block", {THREADS_PER_BLOCK});
     res.chunk_sizes = parse_int_vec(r, "chunk_sizes", {MOT_PER_CHUNK});
@@ -81,7 +81,7 @@ TestParams parse_gpu_input_args(int argc, char **argv)
     return res;
 }
 
-std::string gpu_result_json(const RunParams &params, float result, unsigned int motifs_count)
+std::string gpu_result_json(const GpuRunParams &params, float result, unsigned int motifs_count)
 {
     json o;
     o["count"] = params.count;

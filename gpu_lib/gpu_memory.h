@@ -33,24 +33,7 @@ public:
 };
 
 using GpuMemoryPtr = std::shared_ptr<IGpuMemory>;
-GpuMemoryPtr createMemoryAllocator(bool unified);
+GpuMemoryPtr create_memory_allocator(bool unified);
 
-// Create a new device memory, fill it from host src memory, or with zeroes
-// @param mem - memory allocator
-// @param count - number of elements
-// @param src - if null, fill with zeroes, otherwise copy from the host memory to device memory
-template<typename T>
-T *allocateOnDeviceAndInit(IGpuMemory *mem, uint32_t count, T *src = nullptr)
-{
-    T *result_dev;
-    uint32_t result_dev_bytes = count * sizeof (T);
-    mem->MALLOC((void**)&result_dev, result_dev_bytes);
-    if (src) {
-        mem->MEMCPY_TO_DEVICE(result_dev, src, result_dev_bytes);
-    } else {
-        mem->MEMSET(result_dev, 0, result_dev_bytes);
-    }
-    return result_dev;
-}
 
 #endif //MOTIF_FINDER_GPU_MEMORY_H
