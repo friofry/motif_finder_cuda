@@ -10,6 +10,7 @@ set(COMMON_CXX_FLAGS -c -m64 -D_USE_MATH_DEFINES)
 
 set(SOURCES
         sequence_hashes.h
+        sequence_nums.h
         gmps.cpp
         gmps.h
         safe_counter.h
@@ -18,7 +19,8 @@ set(SOURCES
         fst_reader.cpp
         fst_reader.h
         run_parallel.cpp
-        run_parallel.h)
+        run_parallel.h
+        )
 
 
 add_library(common_lib ${SOURCES})

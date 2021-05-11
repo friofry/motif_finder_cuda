@@ -12,8 +12,12 @@ set(SOURCES
         letter_conversions.cpp
         sequences_to_hashes.h
         sequences_to_hashes.cpp
+        sequences_to_nums.cpp
+        sequences_to_nums.h
         hash_conversions.h
         hash_conversions.cpp
+        hash_conversions_x4.cpp
+        hash_conversions_x4.h
         )
 
 add_library(conversion_lib ${SOURCES})

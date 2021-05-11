@@ -11,39 +11,39 @@ SequenceHashes sequences_to_hashes(const std::vector<std::string> &sequences, bo
     SequenceHashes ret;
     ret.count = sequences.size();
     for (const auto &s: sequences) {
-        int hashLen = s.size() - MOTIV_LEN + 1;
+        int hash_len = s.size() - MOTIV_LEN + 1;
 
         ret.seq_begins.push_back(ret.hashes.size());
 
         // Forward strand hashes
-        for (int j = 0; j < hashLen; j++) {
+        for (int j = 0; j < hash_len; j++) {
             uint32_t hash = string_to_hash(&s[j]);
             ret.hashes.push_back(hash);
         }
 
         // Complementary strand hashes
         if (complementary) {
-            for (int j = 0; j < hashLen; j++) {
+            for (int j = 0; j < hash_len; j++) {
                 uint32_t hash = string_to_hash_compl(&s[j]);
                 ret.hashes.push_back(hash);
             }
         }
-        ret.lengths.push_back(complementary ? hashLen * 2 : hashLen);
+        ret.lengths.push_back(complementary ? hash_len * 2 : hash_len);
     }
     return ret;
 }
 
-std::vector<std::string> hashesToSequences(const SequenceHashes &seqHashes, bool complementary)
+std::vector<std::string> hashes_to_sequences(const SequenceHashes &seq_hashes, bool complementary)
 {
     std::vector<std::string> ret;
 
-    for (uint32_t i = 0; i < seqHashes.count; i++) {
+    for (uint32_t i = 0; i < seq_hashes.count; i++) {
         string seq;
-        uint32_t start = seqHashes.seq_begins[i];
-        uint32_t length = complementary ? seqHashes.lengths[i] / 2 : seqHashes.lengths[i];
+        uint32_t start = seq_hashes.seq_begins[i];
+        uint32_t length = complementary ? seq_hashes.lengths[i] / 2 : seq_hashes.lengths[i];
 
         for (uint32_t j = 0; j < length; j++) {
-            auto s = hash_to_string(seqHashes.hashes[start + j]);
+            auto s = hash_to_string(seq_hashes.hashes[start + j]);
             if (j < length - 1) {
                 seq += s[0];
             } else {
@@ -56,7 +56,7 @@ std::vector<std::string> hashesToSequences(const SequenceHashes &seqHashes, bool
 
         if (complementary) {
             for (uint32_t j = 0; j < length; j++) {
-                auto s = compl_hash_to_string(seqHashes.hashes[start + j + length]);
+                auto s = compl_hash_to_string(seq_hashes.hashes[start + j + length]);
                 if (j < length - 1) {
                     seq += s[0];
                 } else {

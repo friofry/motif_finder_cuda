@@ -1,5 +1,5 @@
-#ifndef MOTIF_FINDER_INTERNAL_GPU_ALGORITHM_H
-#define MOTIF_FINDER_INTERNAL_GPU_ALGORITHM_H
+#ifndef MOTIF_FINDER_INTERNAL_CPU_ALGORITHM_H
+#define MOTIF_FINDER_INTERNAL_CPU_ALGORITHM_H
 
 #include <config.h>
 #include <sequence_hashes.h>
@@ -13,4 +13,4 @@ void internal_cpu_algorithm(const SequenceHashes &sequence_hashes,
                             uint32_t thread_count = 0);
 
 
-#endif // MOTIF_FINDER_INTERNAL_GPU_ALGORITHM_H
+#endif // MOTIF_FINDER_INTERNAL_CPU_ALGORITHM_H

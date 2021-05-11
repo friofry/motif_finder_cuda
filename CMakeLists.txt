@@ -17,10 +17,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 message("Generated with config types: ${CMAKE_BUILD_TYPE}")
 
 add_subdirectory(3rdparty/cxxopts)
+add_subdirectory(3rdparty/json)
+
 add_subdirectory(common_lib)
 add_subdirectory(conversion_lib)
+add_subdirectory(benchmark_common_lib)
+add_subdirectory(stat_lib)
 add_subdirectory(cpu_lib)
-#add_subdirectory(benchmark_common_lib)
 add_subdirectory(benchmark_cpu)
 
 find_package( CUDA 10.0 QUIET )

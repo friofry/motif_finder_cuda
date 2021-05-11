@@ -11,7 +11,7 @@ add_library(cpu_lib
         external_cpu_algorithm.cpp
         external_cpu_algorithm.h
         internal_cpu_algorithm.cpp
-        internal_gpu_algorithm.h)
+        internal_cpu_algorithm.h)
 
 add_library(lib::cpu ALIAS cpu_lib)
 
