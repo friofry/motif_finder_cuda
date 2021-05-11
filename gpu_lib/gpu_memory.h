@@ -16,13 +16,6 @@ public:
     virtual ~IGpuMemory();
 };
 
-class GpuMemoryPointer {
-public:
-    GpuMemoryPointer();
-
-
-};
-
 class UnifiedGpuMemory : public IGpuMemory {
 public:
     cudaError_t MALLOC(void **devPtr, std::size_t size) override;
@@ -40,14 +33,14 @@ public:
 };
 
 using GpuMemoryPtr = std::shared_ptr<IGpuMemory>;
-GpuMemoryPtr create_memory_allocator(bool unified);
+GpuMemoryPtr createMemoryAllocator(bool unified);
 
 // Create a new device memory, fill it from host src memory, or with zeroes
 // @param mem - memory allocator
 // @param count - number of elements
 // @param src - if null, fill with zeroes, otherwise copy from the host memory to device memory
 template<typename T>
-T *allocate_on_device_and_init(IGpuMemory *mem, uint32_t count, T *src = nullptr)
+T *allocateOnDeviceAndInit(IGpuMemory *mem, uint32_t count, T *src = nullptr)
 {
     T *result_dev;
     uint32_t result_dev_bytes = count * sizeof (T);

@@ -1,5 +1,7 @@
 #include "finder_kernel.cuh"
 
+#include "gpu_memory.h"
+
 namespace {
 __device__ uint16_t get_occurrence(uint32_t motif_hash,
                                    uint32_t *seq_hashes,
@@ -80,53 +82,101 @@ __global__ void motif_finder_kernel_internal(
 }
 } // namespace
 
-void motif_finder_gpu_internal(
-        uint16_t *weights_out,
-        uint32_t *seq_hashes,
-        uint32_t sequences_count,
-        uint32_t *hash_lengths,
-        uint32_t *hash_begins,
-        uint32_t mots_to_copy,
-        uint32_t motif_range_size,
-        uint32_t shared_memory_size,
-        uint32_t motif_idx_offset,
-        uint32_t threads_per_block)
+
+GpuExternalMemory::GpuExternalMemory(const GpuCudaParams &params, const SequenceHashes &sequence_hashes)
 {
-    motif_finder_kernel_internal<<<motif_range_size/threads_per_block, threads_per_block, shared_memory_size>>>(
-            weights_out,
-            seq_hashes,
-            sequences_count,
-            hash_lengths,
-            hash_begins,
-            mots_to_copy,
-            motif_idx_offset,
-            threads_per_block);
-    cudaDeviceSynchronize();
+    allocator = create_memory_allocator(params.unified_memory);
+
+    weights_out = allocate_on_device_and_init<uint16_t>(allocator->get(), params.motif_range_size, nullptr);
+    seq_hashes = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.hashes.size(), &(sequence_hashes.hashes[0]));
+    seq_lengths = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.lengths.size(), &(sequence_hashes.lengths[0]));
+    seq_begins = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.seq_begins.size(), &(sequence_hashes.seq_begins[0]));
+    motif_hashes = allocate_on_device_and_init<uint32_t>(allocator->get(), params.motif_range_size, nullptr);
+    sequences_count = sequence_hashes.count;
+    shared_memory_size = std::max_element(sequence_hashes.lengths.begin(), sequence_hashes.lengths.end()) * sizeof(uint32_t);
+    weights_count = params.motif_range_size;
+}
+
+GpuExternalMemory::~GpuExternalMemory()
+{
+    cudaFree(weights_out);
+    cudaFree(seq_hashes);
+    cudaFree(seq_lengths);
+    cudaFree(seq_begins);
+    cudaFree(motif_hashes);
+    weights_count = 0;
+    sequences_count = 0;
 }
 
 void motif_finder_gpu_external(
-        uint16_t *weights_out,
-        uint32_t *seq_hashes,
-        uint32_t sequences_count,
-        uint32_t *hash_lengths,
-        uint32_t *hash_begins,
-        uint32_t *motif_hashes,
-        uint32_t mots_to_copy,
-        uint32_t motif_range_size,
-        uint32_t shared_memory_size,
-        uint32_t motif_idx_offset,
-        uint32_t threads_per_block)
+    const std::vector<uint32_t> &motif_hashes,
+    const GpuExternalMemory &mem,
+    const GpuCudaParams &params,
+    std::vector<uint16_t> &out_motif_weights,
+    uint32_t motif_offset,
+    uint32_t motifs_count,
+    int device_id)
 {
-    motif_finder_kernel_external<<<motif_range_size/threads_per_block, threads_per_block, shared_memory_size>>>(
-            weights_out,
-            seq_hashes,
-            sequences_count,
-            hash_lengths,
-            hash_begins,
-            motif_hashes,
-            mots_to_copy,
-            motif_idx_offset,
-            threads_per_block);
+    cudaSetDevice(device_id);
+
+    mem.allocator->MEMCPY_TO_DEVICE(mem.motif_hashes, &motif_hashes[motif_offset],  motifs_count * sizeof(uint32_t));
+    motif_finder_kernel_external<<<params.motif_range_size/params.threads_per_block, params.threads_per_block, mem.shared_memory_size>>>(
+        mem.weights_out,
+        mem.seq_hashes,
+        mem.sequences_count,
+        mem.seq_lengths,
+        mem.seq_begins,
+        mem.motif_hashes,
+        motifs_count,
+        motif_offset,
+        params.threads_per_block);
     cudaDeviceSynchronize();
+    mem.allocator->MEMCPY_TO_HOST(&(out_motif_weights[motif_offset]), mem.weights_out, motifs_count * sizeof(uint16_t));
 }
 
+// INTERNAL
+
+GpuInternalMemory::GpuInternalMemory(const GpuCudaParams &params, const SequenceHashes &sequence_hashes)
+{
+    allocator = create_memory_allocator(params.unified_memory);
+
+    weights_out = allocate_on_device_and_init<uint16_t>(allocator->get(), params.motif_range_size, nullptr);
+    seq_hashes = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.hashes.size(), &(sequence_hashes.hashes[0]));
+    seq_lengths = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.lengths.size(), &(sequence_hashes.lengths[0]));
+    seq_begins = allocate_on_device_and_init<uint32_t>(allocator->get(), sequence_hashes.seq_begins.size(), &(sequence_hashes.seq_begins[0]));
+    sequences_count = sequence_hashes.count;
+    shared_memory_size = std::max_element(sequence_hashes.lengths.begin(), sequence_hashes.lengths.end()) * sizeof(uint32_t);
+    weights_count = params.motif_range_size;
+}
+
+GpuInternalMemory::~GpuInternalMemory()
+{
+    cudaFree(weights_out);
+    cudaFree(seq_hashes);
+    cudaFree(seq_lengths);
+    cudaFree(seq_begins);
+    weights_count = 0;
+    sequences_count = 0;
+}
+
+void motif_finder_gpu_internal(
+    const GpuInternalMemory &mem,
+    const GpuCudaParams &params,
+    std::vector<uint16_t> &out_motif_weights,
+    uint32_t motif_idx_offset,
+    uint32_t motifs_count,
+    int device_id)
+{
+    cudaSetDevice(device_id);
+    motif_finder_kernel_internal<<<params.motif_range_size/params.threads_per_block, params.threads_per_block, mem.shared_memory_size>>>(
+        mem.weights_out,
+        mem.seq_hashes,
+        mem.sequences_count,
+        mem.seq_lengths,
+        mem.seq_begins,
+        motifs_count,
+        motif_idx_offset,
+        params.threads_per_block);
+    cudaDeviceSynchronize();
+    mem.allocator->MEMCPY_TO_HOST(&(out_motif_weights[motif_idx_offset]), mem.weights_out, motifs_count * sizeof(uint16_t));
+}

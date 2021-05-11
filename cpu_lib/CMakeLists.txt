@@ -11,13 +11,12 @@ add_library(cpu_lib
         external_cpu_algorithm.cpp
         external_cpu_algorithm.h
         internal_cpu_algorithm.cpp
-        internal_cpu_algorithm.h)
+        internal_gpu_algorithm.h)
 
 add_library(lib::cpu ALIAS cpu_lib)
 
 target_link_libraries(cpu_lib
                       lib::common
-                      lib::conversion
-                      lib::occurrence_algorithm_lib)
+                      lib::conversion)
 
 target_include_directories(cpu_lib PUBLIC ${PROJECT_SOURCE_DIR}/.)

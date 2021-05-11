@@ -1,9 +1,9 @@
 #ifndef MOTIF_FINDER_EXTERNAL_CPU_ALGORITHM_H
 #define MOTIF_FINDER_EXTERNAL_CPU_ALGORITHM_H
 
-#include <SequenceHashes.h>
 #include <config.h>
 #include <cstdint>
+#include <sequence_hashes.h>
 
 // Get motif occurrences and store to out_motif_weights
 // @param motif_hashes - motif hashes

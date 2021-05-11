@@ -1,4 +1,4 @@
-#include "internal_cpu_algorithm.h"
+#include "internal_gpu_algorithm.h"
 
 #include <thread>
 

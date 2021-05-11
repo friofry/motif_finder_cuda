@@ -1,8 +1,8 @@
 #include <vector>
 #include <cstdint>
 
-#include <internal_cpu_algorithm.h>
 #include <external_cpu_algorithm.h>
+#include <internal_gpu_algorithm.h>
 
 #include <fst_reader.h>
 #include <sequences_to_hashes.h>

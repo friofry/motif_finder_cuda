@@ -1,5 +1,5 @@
-#ifndef MOTIF_FINDER_SEQUENCEHASHES_H
-#define MOTIF_FINDER_SEQUENCEHASHES_H
+#ifndef MOTIF_FINDER_SEQUENCE_HASHES_H
+#define MOTIF_FINDER_SEQUENCE_HASHES_H
 #include <vector>
 #include <cstdint>
 
@@ -10,4 +10,4 @@ struct SequenceHashes {
     std::vector<uint32_t> seq_begins;
 };
 
-#endif //MOTIF_FINDER_SEQUENCEHASHES_H
+#endif // MOTIF_FINDER_SEQUENCE_HASHES_H

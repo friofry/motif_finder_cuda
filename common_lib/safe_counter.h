@@ -51,7 +51,7 @@ public:
         uint32_t start;
         uint32_t end;
         uint32_t idx;
-        uint32_t count() {
+        uint32_t count() const {
             return end > start ? (end - start) : 0;
         }
     };

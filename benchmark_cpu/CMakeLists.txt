@@ -8,6 +8,5 @@ add_executable(benchmark_cpu
 
 target_link_libraries(benchmark_cpu
         lib::cpu
-        lib::occurrence_algorithm_lib
         3rdparty::cxxopts
         )

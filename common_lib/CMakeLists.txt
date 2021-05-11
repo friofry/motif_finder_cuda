@@ -9,7 +9,7 @@ find_package(Threads)
 set(COMMON_CXX_FLAGS -c -m64 -D_USE_MATH_DEFINES)
 
 set(SOURCES
-        SequenceHashes.h
+        sequence_hashes.h
         gmps.cpp
         gmps.h
         safe_counter.h
