@@ -16,10 +16,10 @@ void external_gpu_algorithm(const std::vector<uint32_t> &motif_hashes,
                             std::vector<uint16_t> &out_motif_weights,
                             const GpuCudaParams &params)
 {
-    out_motif_weights.resize(TOTAL_MOT, 0);
+    out_motif_weights.resize(motif_hashes.size(), 0);
     uint32_t threads = (params.gpu_count > 0) ? params.gpu_count : std::thread::hardware_concurrency();
 
-    SafeCounter motifs_counter(TOTAL_MOT);
+    SafeCounter motifs_counter(motif_hashes.size());
 
     run_parallel(threads, [&](uint32_t thread_id) {
         GpuExternalMemory gpu_memory(params, sequence_hashes);
