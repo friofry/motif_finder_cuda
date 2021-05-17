@@ -9,12 +9,18 @@ add_library(iterative_finder_lib
         argo_cuda_params.h
         argo_cuda_params_reader.cpp
         argo_cuda_params_reader.h
-        find_motifs_iterative.cpp
-        find_motifs_iterative.h
+        iterative_finder.cpp
+        iterative_finder.h
+        create_stat_model.h
+        create_stat_model.cpp
+        find_most_important_motif.cpp
+        find_most_important_motif.h
+        motif_data.h
         )
 
 target_link_libraries(iterative_finder_lib
         lib::common
+        lib::conversion
         lib::stat
         lib::cpu
         )

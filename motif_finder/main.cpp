@@ -1,16 +1,21 @@
 #include <iostream>
 #include <cstdio>
 
-#include <argo_cuda_params_reader.h>
-#include <find_motifs_iterative.h>
+// common_lib
 #include <fst_reader.h>
+
+// cpu_lib
+#include <external_cpu_algorithm.h>
+
+// iterative_finder_lib
+#include <argo_cuda_params_reader.h>
+#include <iterative_finder.h>
 
 #include "create_stat_model.h"
 
 using namespace std;
 
 const char *_default_ini_filename = "init.ini";
-
 
 int main(int argc, char** argv)
 {
@@ -19,12 +24,14 @@ int main(int argc, char** argv)
     ArgoCudaParams params = read_ini_file(_default_ini_filename);
     print_argo_cuda_params(params);
 
-    auto sequences = read_fasta(params.positive_sequences.c_str());
+    auto cpu_external_algorithm = [](const std::vector<uint32_t> &motif_hashes,
+                                 const SequenceHashes &sequence_hashes,
+                                 std::vector<uint16_t> &out_motif_weights) {
+        external_cpu_algorithm(motif_hashes, sequence_hashes, out_motif_weights);
+    };
 
-    auto stat_model = create_stat_model(params.use_real_nucl_frequences, params.markov_level, sequences, params.complementary);
-
-
-    find_motifs_iterative();
+    ImportantMotifFinder finder(params, cpu_external_algorithm);
+    finder.find();
 
     return 0;
 }

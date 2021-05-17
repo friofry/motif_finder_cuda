@@ -18,6 +18,8 @@ set(SOURCES
         hash_conversions.cpp
         hash_conversions_x4.cpp
         hash_conversions_x4.h
+        match_functions.cpp
+        match_functions.h
         )
 
 add_library(conversion_lib ${SOURCES})
