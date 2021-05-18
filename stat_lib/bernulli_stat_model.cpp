@@ -3,8 +3,10 @@
 
 using namespace std;
 
-BernulliStatModel::BernulliStatModel(const std::vector<std::string> &sequences, bool complementary)
-    : StatModel(sequences, complementary)
+BernulliStatModel::BernulliStatModel(const std::vector<std::string> &sequences,
+                                     bool complementary,
+                                     bool use_binom_instead_of_chi2)
+    : StatModel(sequences, complementary, use_binom_instead_of_chi2)
 {
     // TODO: определиться как считать вероятность для комплементарных последовательностей.
     _frequencies_ratio = calc_frequencies_ratio(sequences, false);
@@ -20,4 +22,3 @@ double BernulliStatModel::motif_probability_x4(uint32_t hash) const
 {
     return ::motif_probability_x4(hash, _probability_x4);
 }
-

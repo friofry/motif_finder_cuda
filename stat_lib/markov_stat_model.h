@@ -1,14 +1,17 @@
 #pragma once
-#include <vector>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
-#include <stat_model.h>
 #include <sequence_nums.h>
+#include <stat_model.h>
 
 class MarkovStatModel : public StatModel {
 public:
-    MarkovStatModel(const std::vector<std::string> &sequences, bool complementary, int level);
+    MarkovStatModel(const std::vector<std::string> &sequences,
+                    bool complementary,
+                    int level,
+                    bool use_binom_instead_of_chi2);
 
     double motif_probability(uint32_t hash) const override;
     double motif_probability_x4(uint32_t hash) const override;
@@ -26,6 +29,8 @@ private:
 
     int _key_size1;
     int _key_size2;
-    std::vector<double> _precalc_prefix_probabilities; // предрассчитанные вероятности для нескольких символов (для префикса)
-    std::vector<double> _precalc_suffix_probabilities; // предрассчитанные вероятности для нескольких символов (для суффикса)
+    std::vector<double>
+        _precalc_prefix_probabilities; // предрассчитанные вероятности для нескольких символов (для префикса)
+    std::vector<double>
+        _precalc_suffix_probabilities; // предрассчитанные вероятности для нескольких символов (для суффикса)
 };

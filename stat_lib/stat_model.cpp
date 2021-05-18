@@ -1,16 +1,17 @@
 #include "stat_model.h"
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
-#include <fst_reader.h>
 #include <config.h>
+#include <fst_reader.h>
 #include <sequences_to_nums.h>
 
 using namespace std;
 
-StatModel::StatModel(const vector<string> &sequences, bool complementary)
+StatModel::StatModel(const vector<string> &sequences, bool complementary, bool use_binom_instead_of_chi2)
     : _sequences(sequences)
     , _complementary(complementary)
+    , _use_binom_instead_of_chi2(use_binom_instead_of_chi2)
 {
     _sequence_nums = sequences_to_nums(sequences);
 
@@ -19,15 +20,13 @@ StatModel::StatModel(const vector<string> &sequences, bool complementary)
 
     int n = _sequence_nums.count;
 
-    _log_sums.resize(n+1, 0);
+    _log_sums.resize(n + 1, 0);
     for (int i = 1; i <= n; i++) {
-        _log_sums[i] = _log_sums[i-1] + log10(double(n-i+1) / double(i));
+        _log_sums[i] = _log_sums[i - 1] + log10(double(n - i + 1) / double(i));
     }
 }
 
-StatModel::~StatModel()
-{
-}
+StatModel::~StatModel() {}
 
 int StatModel::get_avg_hashes_per_sequence() const
 {
@@ -57,10 +56,10 @@ double StatModel::chi2_by_hash(uint32_t hash, uint16_t weight) const
 double StatModel::binom_by_hash(uint32_t hash, uint16_t k, double max_score) const
 {
     double p_in_pos = motif_probability_x4(hash);
-    double p =  1.0 - exp(_hashes_per_sequence * log(1.0 - p_in_pos));
+    double p = 1.0 - exp(_hashes_per_sequence * log(1.0 - p_in_pos));
     double q = 1.0 - p;
     int n = _sequence_nums.count;
-    double lpq = log10(p/q);
+    double lpq = log10(p / q);
     if (k == 0) {
         return 0;
     }
@@ -96,4 +95,13 @@ double StatModel::binom_by_hash(uint32_t hash, uint16_t k, double max_score) con
         }
     }
     return -log10(res) + base_log;
+}
+
+double StatModel::score(uint32_t hash, uint16_t weight, double max_score) const
+{
+    if (_use_binom_instead_of_chi2) {
+        return binom_by_hash(hash, weight, max_score);
+    } else {
+        return chi2_by_hash(hash, weight);
+    }
 }

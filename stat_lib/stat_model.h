@@ -2,15 +2,15 @@
 
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <sequence_nums.h>
 
 // Base class for stat models (abstract)
 class StatModel {
 public:
-    StatModel(const std::vector<std::string> &sequences, bool complementary);
+    StatModel(const std::vector<std::string> &sequences, bool complementary, bool use_binom_instead_of_chi2);
 
     virtual ~StatModel();
 
@@ -33,11 +33,15 @@ public:
     // Биномиальный критерий (Бернулли)
     double binom_by_hash(uint32_t hash, uint16_t weight, double max_score = 0.0) const;
 
+    // Score (either binom or chi2)
+    double score(uint32_t hash, uint16_t weight, double max_score = 0.0) const;
+
 protected:
     std::vector<std::string> _sequences;
-    int _hashes_per_sequence { 0 };
+    int _hashes_per_sequence{ 0 };
     SequenceNums _sequence_nums;
     bool _complementary;
+    bool _use_binom_instead_of_chi2;
     std::vector<double> _log_sums;
 };
 

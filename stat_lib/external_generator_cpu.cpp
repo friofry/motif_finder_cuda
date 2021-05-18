@@ -5,9 +5,9 @@
 #include <thread>
 
 #include <config.h>
-#include <timer.h>
 #include <hash_conversions.h>
 #include <hash_conversions_x4.h>
+#include <timer.h>
 
 #include "probability.h"
 
@@ -138,28 +138,25 @@ void filter_hashes_thread(vector<uint32_t> &result_hashes,
                           const StatModel &stat_model,
                           const vector<uint16_t> &weights,
                           const vector<uint32_t> &motifs_hashes,
-                          double max_motif_chi2,
-                          bool binom_instead_chi2,
+                          double max_score,
                           uint32_t start,
                           uint32_t end)
 {
     for (uint32_t i = start; i < end; i++) {
         uint16_t weight = weights[i];
         uint32_t hash = motifs_hashes[i];
-        double chi2
-            = binom_instead_chi2 ? stat_model.binom_by_hash(hash, weight) : stat_model.chi2_by_hash(hash, weight);
+        double score = stat_model.score(hash, weight);
 
-        if (chi2 < max_motif_chi2) {
+        if (score < max_score) {
             result_hashes.push_back(hash);
         }
     }
 }
 
-void filter_hashes(double max_motif_chi2,
+void filter_hashes(double max_score,
                    const StatModel &stat_model,
                    const vector<uint16_t> &weights,
-                   vector<uint32_t> &motifs_hashes,
-                   bool binom_instead_chi2)
+                   vector<uint32_t> &motifs_hashes)
 {
     vector<thread> threads;
     int threads_count = thread::hardware_concurrency();
@@ -182,8 +179,7 @@ void filter_hashes(double max_motif_chi2,
                                       ref(stat_model),
                                       ref(weights),
                                       ref(motifs_hashes),
-                                      max_motif_chi2,
-                                      binom_instead_chi2,
+                                      max_score,
                                       start,
                                       end));
     }
@@ -223,15 +219,14 @@ void generate_external_hashes_cpu(double max_motif_prob_by_chance,
     generate_hashes(result_hashes, stat_model, complementary, probability_border);
 }
 
-void filter_hashes_by_contrast(double max_motif_chi2,
+void filter_hashes_by_contrast(double max_score,
                                const StatModel &stat_model,
                                const vector<uint16_t> &weights,
-                               vector<uint32_t> &motifs_hashes,
-                               bool binom_instead_chi2)
+                               vector<uint32_t> &motifs_hashes)
 {
     Timer t("filter_indexes_by_contrast");
     t.silence();
-    filter_hashes(max_motif_chi2, stat_model, weights, motifs_hashes, binom_instead_chi2);
+    filter_hashes(max_score, stat_model, weights, motifs_hashes);
 }
 
 void generate_all_hashes(vector<uint32_t> &motif_hashes, uint32_t count)

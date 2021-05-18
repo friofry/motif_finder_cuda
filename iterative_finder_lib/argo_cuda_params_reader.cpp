@@ -1,14 +1,13 @@
 #include "argo_cuda_params_reader.h"
-#include <fstream>
 #include <cstdlib>
-#include <string>
+#include <fstream>
 #include <iostream>
 #include <regex>
+#include <string>
 
 using namespace std;
 
-namespace
-{
+namespace {
 vector<string> readlines(const char *fillename)
 {
     vector<string> result;
@@ -47,7 +46,7 @@ ArgoCudaParams read_ini_file(const char *inifile)
     auto lines = readlines(inifile);
     ArgoCudaParams result;
     if (lines.size() < 13) {
-        cout << "Ini file should contain exactly 13 parameters. " << inifile << lines.size() << endl;
+        cout << "Ini file should contain exactly 15 parameters. " << inifile << lines.size() << endl;
         return result;
     }
 
@@ -68,24 +67,33 @@ ArgoCudaParams read_ini_file(const char *inifile)
     result.contrast_sequences = get_first_word(lines[11]);
     result.max_motif_score_contrast = stod(lines[12]);
     result.min_motif_chi2 = stod(lines[13]);
-
+    result.bonferroni_correction = atoi(lines[14].c_str());
     return result;
 }
 
 void print_argo_cuda_params(const ArgoCudaParams &params)
 {
-    cout << (int)params.complementary << "\t\tComplementarity" << endl;
-    cout << params.min_motif_score << "\t\tMin score value" << endl;
-    cout << params.max_motif_prob_by_chance << "\t\tMax presence of motif by chance" << endl;
-    cout << params.min_motif_presence << "\t\tMin presence of motif in the seq set" << endl;
-    cout << params.positive_sequences << "\tSequences set" << endl;
-    cout << (int)params.use_real_nucl_frequences << "\t\tUsing of real frequencies. 0-not/1-use" << endl;
-    cout << (int)params.use_binom_instead_chi2 << "\t\tusing of the Chi2 (0) or binom (1) score" << endl;
-    cout << params.motif_to_find  << "\t\tNumber of motifs. 0->1000000" << endl;
-    cout << params.markov_level << "\t\tMarkov level of frequencies, if RealFreqs==1. 0- bernulli/1- dinucleotides/2- trinucleotides." << endl;
-    cout << (int)params.use_old_motifs_file << "\t\tUse (1) or not (0) of earlier found motifs from oldmotifs.mot file." << endl;
-    cout << params.chip_seq_percentage << "\t\tUse chip seq (minimum percentage of sequences)" << endl;
-    cout << params.contrast_sequences << "\tContrast sequences set" << endl;
-    cout << params.max_motif_score_contrast << "\t\tMax score value in contrast seq set" << endl;
-    cout << params.min_motif_chi2 << "\t\tMinimum motif chi2 score" << endl;
+    cout << (int)params.complementary << "\t\tComplementarity. 0 - forward strand. 1 - forward + reverse strand."
+         << endl;
+    cout << params.min_motif_score << "\t\tMinimum score" << endl;
+    cout << params.max_motif_prob_by_chance * 100
+         << "\t\tMaximum presence of motif for random reasons in the positive set of sequences [0-100]" << endl;
+    cout << params.min_motif_presence * 100
+         << "\t\tMinimum presence of motif for random reasons in a positive set of sequences [0-100]" << endl;
+    cout << params.positive_sequences << "\tFile with positive set of sequences" << endl;
+    cout << (int)params.use_real_nucl_frequences
+         << "\t\t0 - neutral frequencies, 1 - real nucleotide frequencies in the set of sequences [0, 1]" << endl;
+    cout << (int)params.use_binom_instead_chi2 << "\t\tScore type: 0 - chi-squared or 1 - binomial [0, 1]" << endl;
+    cout << params.motif_to_find << "\t\tMaximum number of result motifs. 0 - reveal all significant motifs [0, ]"
+         << endl;
+    cout << params.markov_level
+         << "\t\tMarkov chain order (0-Bernulli, 1-dinucleotide, 2-trinucleotide), when using real nucleotide "
+            "frequencies [0-3]"
+         << endl;
+    cout << (int)params.use_old_motifs_file << "\t\t[deprecated]" << endl;
+    cout << params.chip_seq_percentage * 100 << "\t\t[deprecated]" << endl;
+    cout << params.contrast_sequences << "\tFile with contrast set of sequences" << endl;
+    cout << params.max_motif_score_contrast << "\t\tMaximum score in a contrast set of sequences" << endl;
+    cout << params.min_motif_chi2 << "\t\t[deprecated]" << endl;
+    cout << params.bonferroni_correction << "\t\tOutput results with Bonferroni correction [0, 1]" << endl;
 }

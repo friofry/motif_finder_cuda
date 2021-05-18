@@ -1,11 +1,11 @@
 #include "markov_stat_model.h"
 
-#include <unordered_map>
 #include <functional>
+#include <unordered_map>
 
 #include <config.h>
-#include <letter_conversions.h>
 #include <fst_reader.h>
+#include <letter_conversions.h>
 #include <timer.h>
 
 #include "probability.h"
@@ -67,7 +67,9 @@ uint32_t make_hash(const uint8_t *start, int count)
     return hash;
 }
 
-void increment_nucl_hashes(const SequenceNums &sequence_nums, unordered_map<uint32_t, int> &hash_counters, uint32_t kmer_length)
+void increment_nucl_hashes(const SequenceNums &sequence_nums,
+                           unordered_map<uint32_t, int> &hash_counters,
+                           uint32_t kmer_length)
 {
     int offset = 0;
     for (uint32_t i = 0; i < sequence_nums.count; i++) {
@@ -124,15 +126,16 @@ vector<uint32_t> calc_iupac_hashes_counts(const unordered_map<uint32_t, int> &nu
     vector<uint32_t> iupac_hashes_counter(hashes_count, 0);
     int iupacs_per_nucl = iupac_codes_by_nucl()[0].size();
 
-    for (const auto& kv: nucl_hash_counters) {
+    for (const auto &kv : nucl_hash_counters) {
         auto &nucl_hash = kv.first;
         auto &count = kv.second;
 
-        auto update_all_iupacs = [&iupac_hashes_counter, count, nucl_hash](const vector<int> &slots) -> bool
-        {
+        auto update_all_iupacs = [&iupac_hashes_counter, count, nucl_hash](const vector<int> &slots) -> bool {
             uint32_t cur_hash = slots_to_hash(slots, nucl_hash);
             if (iupac_hashes_counter.size() <= cur_hash) {
-                printf("error hash in calc_iupac_hashes_counts. size %lu, hash %d\n",  iupac_hashes_counter.size(), cur_hash);
+                printf("error hash in calc_iupac_hashes_counts. size %lu, hash %d\n",
+                       iupac_hashes_counter.size(),
+                       cur_hash);
                 return false;
             }
             iupac_hashes_counter[cur_hash] += count;
@@ -144,7 +147,6 @@ vector<uint32_t> calc_iupac_hashes_counts(const unordered_map<uint32_t, int> &nu
     }
     return iupac_hashes_counter;
 }
-
 
 int kmers_in_sequences_by_length(const SequenceNums &sequence_nums, int kmer_length)
 {
@@ -171,9 +173,11 @@ uint32_t extract_kmer_hash(uint32_t hash, int pos, int length)
 
 } // namespace
 
-
-MarkovStatModel::MarkovStatModel(const std::vector<std::string> &sequences, bool complementary, int level)
-    : StatModel(sequences, complementary)
+MarkovStatModel::MarkovStatModel(const std::vector<std::string> &sequences,
+                                 bool complementary,
+                                 int level,
+                                 bool use_binom_instead_of_chi2)
+    : StatModel(sequences, complementary, use_binom_instead_of_chi2)
     , _level(level)
     , _kmer_length(_level + 1)
 {
@@ -188,7 +192,7 @@ MarkovStatModel::MarkovStatModel(const std::vector<std::string> &sequences, bool
     _probabilities.resize(hashes_count, _default_prob);
 
     calc_probabilities(_kmer_length);
-    calc_probabilities(_kmer_length-1);
+    calc_probabilities(_kmer_length - 1);
 
     // === предарссчитанные данные
     _symbols_in_key1 = (MOTIV_LEN - _kmer_length) / 2 + 1;
@@ -219,8 +223,8 @@ void MarkovStatModel::precalc_probabilities(int symbols_in_key, std::vector<doub
         result_probabilites.resize(keys_count, 0.0);
     }
 
-    auto precalc_key = [this, symbols_in_key, key_size, prefix, &result_probabilites](const vector<int> &slots) -> bool
-    {
+    auto precalc_key
+        = [this, symbols_in_key, key_size, prefix, &result_probabilites](const vector<int> &slots) -> bool {
         uint32_t key_hash = slots_to_hash(slots);
 
         double probability = 1.0;
@@ -237,7 +241,7 @@ void MarkovStatModel::precalc_probabilities(int symbols_in_key, std::vector<doub
             uint32_t cur_hash = extract_kmer_hash(key_hash, offset + i, _kmer_length);
             probability *= _probabilities[cur_hash];
 
-            uint32_t cur_hash_1 = extract_kmer_hash(key_hash, offset + i, _kmer_length-1);
+            uint32_t cur_hash_1 = extract_kmer_hash(key_hash, offset + i, _kmer_length - 1);
             probability /= _probabilities[cur_hash_1];
         }
 

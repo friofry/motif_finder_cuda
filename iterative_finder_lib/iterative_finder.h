@@ -22,7 +22,7 @@ public:
 
 private:
     void find_motifs_iterative(std::vector<uint32_t> &motif_hashes, bool exclude_sequence = false);
-    void exclude_motifs_by_chi2(std::vector<uint32_t> &motif_hashes, std::vector<uint16_t> &weights) const;
+    void exclude_motifs_by_score(std::vector<uint32_t> &motif_hashes, std::vector<uint16_t> &weights) const;
     void write_results_old();
 
 private:

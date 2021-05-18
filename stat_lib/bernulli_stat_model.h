@@ -1,12 +1,12 @@
 #pragma once
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <stat_model.h>
 
 class BernulliStatModel : public StatModel {
 public:
-    BernulliStatModel(const std::vector<std::string> &sequences, bool complementary);
+    BernulliStatModel(const std::vector<std::string> &sequences, bool complementary, bool use_binom_instead_of_chi2);
 
     double motif_probability(uint32_t hash) const override;
     double motif_probability_x4(uint32_t hash) const override;
