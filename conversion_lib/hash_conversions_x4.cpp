@@ -10,7 +10,7 @@ using namespace std;
 
 namespace {
 
-const uint32_t HI_PART_15_MIN = pow(15, 4);
+const uint32_t HI_PART_15_MIN = 15*15*15*15;
 
 uint32_t hash_to_idx_with_check(uint32_t hash, bool &out_ok)
 {

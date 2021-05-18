@@ -1,10 +1,10 @@
 #include "fst_reader.h"
 
-#include <fstream>
-#include <sstream>
-#include <iostream>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 #include <regex>
+#include <sstream>
 
 using namespace std;
 
@@ -27,7 +27,7 @@ std::string trim(const std::string &str)
     const char *ws = " \t\n\r\f\v";
     string result = str;
     result.erase(0, str.find_first_not_of(ws));
-    result.erase(result.find_last_not_of(ws)+1);
+    result.erase(result.find_last_not_of(ws) + 1);
     return result;
 }
 
@@ -37,7 +37,7 @@ string find_sequence_id(const string &header)
     if (pos == std::string::npos) {
         return "";
     }
-    return trim(header.substr(pos+1));
+    return trim(header.substr(pos + 1));
 }
 
 bool match_whitespace(const string &s)
@@ -59,7 +59,6 @@ vector<string> read_fasta(const char *filename)
 
     if (input.eof() || input.bad() || !input.good()) {
         throw invalid_argument(std::string("Cannot open input file: ") + filename);
-        return result;
     }
 
     string line;

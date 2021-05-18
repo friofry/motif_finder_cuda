@@ -27,8 +27,8 @@ const vector<vector<int>> &iupac_codes_by_nucl()
 
     if (result.empty()) {
         result.resize(4);
-        for (int i = 0; i < 4; i++) {
-            uint32_t hash = num_to_hash(i);
+        for (uint8_t i = 0; i < 4; i++) {
+            uint32_t hash = static_cast<uint32_t>(num_to_hash(i));
             vector<int> iupac_codes;
             for (int j = 1; j < 16; j++) {
                 if (j & hash) {

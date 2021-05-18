@@ -113,8 +113,8 @@ void ImportantMotifFinder::find_motifs_iterative(vector<uint32_t> &motif_hashes,
         _external_algorithm(motif_hashes, _sequence_hashes, weights);
 
         if (_found_motifs_data.empty()) {
-            // 3. Exclude motif hashes by chi2
-            printf("3. Exclude motif hashes by chi2\n");
+            // 3. Exclude motif hashes by score
+            printf("3. Exclude motif hashes by score\n");
             exclude_motifs_by_score(motif_hashes, weights);
             printf("3. filtered: %lu %lu\n", motif_hashes.size(), weights.size());
             if (_params.use_binom_instead_chi2) {

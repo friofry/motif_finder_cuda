@@ -1,5 +1,6 @@
 #include "create_stat_model.h"
 #include <memory>
+#include <stdexcept>
 
 #include <bernulli_stat_model.h>
 #include <ideal_stat_model.h>
@@ -21,6 +22,6 @@ StatModelPtr create_stat_model(bool use_real_nucl_frequences,
         } else if (markov_level < 5) {
             return make_shared<MarkovStatModel>(sequences, complementary, markov_level, use_binom_instead_of_chi2);
         }
-        throw invalid_argument("Only Markov levels 0-4 are supported");
+        throw std::invalid_argument("Only Markov levels 0-4 are supported");
     }
 }

@@ -6,7 +6,11 @@ set(CMAKE_CXX_STANDARD 14)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
 
-set(COMMON_CXX_FLAGS -c -m64 -D_USE_MATH_DEFINES)
+if(MSVC)
+    #nop
+else()
+    set(COMMON_CXX_FLAGS -c -m64 -D_USE_MATH_DEFINES)
+endif()
 
 set(SOURCES
         sequence_hashes.h
