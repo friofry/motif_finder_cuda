@@ -6,11 +6,15 @@ An exhaustive method based on high-performance GPU computing to reveal degenerat
 ```
 git clone git@github.com:friofry/motif_finder_cuda.git
 cd motif_finder_cuda
-cmake .
-make 
-./benchmark_cpu/benchmark_cpu
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . -j
+benchmark_cpu/benchmark_cpu 
 ```
 
 # Run tests
-
-_TODO_
+```
+cd ../test_data/test_0
+../../build/motif_finder_cpu/motif_finder_cpu
+```
