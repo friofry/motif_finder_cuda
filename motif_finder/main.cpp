@@ -1,5 +1,5 @@
-#include <iostream>
 #include <cstdio>
+#include <iostream>
 
 // common_lib
 #include <fst_reader.h>
@@ -11,27 +11,24 @@
 #include <argo_cuda_params_reader.h>
 #include <iterative_finder.h>
 
-#include "create_stat_model.h"
-
 using namespace std;
 
 const char *_default_ini_filename = "init.ini";
 
-int main(int argc, char** argv)
+int main(in, char **)
 {
-    std::ignore = argc;
-    std::ignore = argv;
+    // 1. Read parameters
     ArgoCudaParams params = read_ini_file(_default_ini_filename);
-    print_argo_cuda_params(params);
 
+    // 2. Prepare algorithm
     auto cpu_external_algorithm = [](const std::vector<uint32_t> &motif_hashes,
-                                 const SequenceHashes &sequence_hashes,
-                                 std::vector<uint16_t> &out_motif_weights) {
+                                     const SequenceHashes &sequence_hashes,
+                                     std::vector<uint16_t> &out_motif_weights) {
         external_cpu_algorithm(motif_hashes, sequence_hashes, out_motif_weights);
     };
 
-    ImportantMotifFinder finder(params, cpu_external_algorithm);
-    finder.find();
+    // 3. Run iterative search
+    find_important_motifs(params, cpu_external_algorithm);
 
     return 0;
 }

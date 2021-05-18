@@ -19,7 +19,8 @@ uint32_t idx_to_hash(uint32_t idx)
     return ret;
 }
 
-uint32_t string_to_hash(const char *s) {
+uint32_t string_to_hash(const char *s)
+{
     uint32_t hash = 0;
     uint32_t mult = 1;
     for (int j = MOTIV_LEN - 1; j >= 0; j--) {
@@ -30,7 +31,8 @@ uint32_t string_to_hash(const char *s) {
     return hash;
 }
 
-uint32_t string_to_hash_compl(const char *s) {
+uint32_t string_to_hash_compl(const char *s)
+{
     uint32_t hash = 0;
     uint32_t mult = 1;
     for (int j = 0; j < MOTIV_LEN; j++) {
@@ -58,7 +60,7 @@ uint32_t to_compl_hash_reverse(uint32_t v)
     // swap bytes
     v = ((v >> 8) & 0x00FF00FF) | ((v & 0x00FF00FF) << 8);
     // swap 2-byte long pairs
-    v = ( v >> 16             ) | ( v               << 16);
+    v = (v >> 16) | (v << 16);
 
     return ((v & 0x33333333) << 2) | ((v & 0xCCCCCCCC) >> 2);
 }
@@ -112,11 +114,11 @@ uint32_t idx_to_motif_prefix_hash(uint32_t prefix_idx, uint32_t prefix_size)
             return 0;
         }
 
-        current_motif_hash |=  symbol_hash << (i*4);
+        current_motif_hash |= symbol_hash << (i * 4);
         prefix_idx /= 16;
         i++;
     }
-    return current_motif_hash << (32 - prefix_size*4);
+    return current_motif_hash << (32 - prefix_size * 4);
 }
 
 uint32_t olig_id_to_prefix_hash(uint32_t olig_idx, uint32_t prefix_size)
@@ -124,9 +126,9 @@ uint32_t olig_id_to_prefix_hash(uint32_t olig_idx, uint32_t prefix_size)
     uint32_t current_hash_mask = 0;
     for (uint32_t i = 0; i < prefix_size; i++) {
         uint32_t nucl_hash = 1 << (olig_idx % 4);
-        current_hash_mask |=  nucl_hash << (i*4);
+        current_hash_mask |= nucl_hash << (i * 4);
         olig_idx /= 4;
     }
 
-    return current_hash_mask << (32 - prefix_size*4);
+    return current_hash_mask << (32 - prefix_size * 4);
 }

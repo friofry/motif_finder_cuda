@@ -8,18 +8,20 @@ find_package(Threads)
 set(COMMON_CXX_FLAGS -c -m64 -D_USE_MATH_DEFINES)
 
 set(SOURCES
-        letter_conversions.h
-        letter_conversions.cpp
-        sequences_to_hashes.h
-        sequences_to_hashes.cpp
-        sequences_to_nums.cpp
-        sequences_to_nums.h
         hash_conversions.h
         hash_conversions.cpp
         hash_conversions_x4.cpp
         hash_conversions_x4.h
-        match_functions.cpp
+        letter_conversions.h
+        letter_conversions.cpp
         match_functions.h
+        match_functions.cpp
+        sequence_hashes_utils.h
+        sequence_hashes_utils.cpp
+        sequences_to_hashes.h
+        sequences_to_hashes.cpp
+        sequences_to_nums.cpp
+        sequences_to_nums.h
         )
 
 add_library(conversion_lib ${SOURCES})

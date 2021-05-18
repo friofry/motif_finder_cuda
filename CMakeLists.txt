@@ -26,7 +26,6 @@ add_subdirectory(stat_lib)
 add_subdirectory(cpu_lib)
 add_subdirectory(iterative_finder_lib)
 add_subdirectory(benchmark_cpu)
-add_subdirectory(motif_finder)
 
 find_package( CUDA 10.0 QUIET )
 if(NOT CUDA_FOUND)
@@ -35,3 +34,5 @@ else()
     add_subdirectory(gpu_lib)
     add_subdirectory(benchmark_gpu)
 endif()
+
+add_subdirectory(motif_finder)

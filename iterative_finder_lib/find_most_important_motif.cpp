@@ -36,7 +36,7 @@ MotifData find_most_important_motif_in_range(
 
     for (uint64_t i = start_idx; i < end_idx; i++) {
         uint16_t weight = motif_weights[i];
-        if (weight == 0) {
+        if (weight == 0 || motif_hashes[i] == 0) {
             continue;
         }
         uint32_t hash = motif_hashes[i];
@@ -68,6 +68,7 @@ MotifData find_most_important_motif_in_range(
         result.hash = motif_hashes[max_i];
         result.weight = motif_weights[max_i];
         result.score = max_score;
+        result.index = max_i;
     } else {
         result.hash = 0;
         result.weight = 0;

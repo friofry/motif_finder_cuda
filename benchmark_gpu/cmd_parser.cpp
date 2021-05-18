@@ -4,9 +4,9 @@
 #include "cmd_parser.h"
 #include <config.h>
 #include <cxxopts.hpp>
-#include <json.hpp>
-#include <iostream>
 #include <gmps.h>
+#include <iostream>
+#include <json.hpp>
 
 using namespace std;
 using json = nlohmann::json;

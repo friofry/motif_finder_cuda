@@ -4,13 +4,13 @@
 
 #include <hash_conversions.h>
 
-using namespace  std;
+using namespace std;
 
 SequenceHashes sequences_to_hashes(const std::vector<std::string> &sequences, bool complementary)
 {
     SequenceHashes ret;
     ret.count = sequences.size();
-    for (const auto &s: sequences) {
+    for (const auto &s : sequences) {
         int hash_len = s.size() - MOTIV_LEN + 1;
 
         ret.seq_begins.push_back(ret.hashes.size());
