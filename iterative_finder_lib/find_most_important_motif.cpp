@@ -1,8 +1,9 @@
 #include "find_most_important_motif.h"
 
-#include <thread>
 #include <algorithm>
+#include <thread>
 
+#include <hash_conversions.h>
 #include <safe_counter.h>
 #include <timer.h>
 
@@ -10,26 +11,29 @@ using namespace std;
 namespace {
 
 MotifData gather_most_important_motif(const vector<MotifData> &results)
- {
+{
     int max_i = 0;
     for (uint32_t i = 0; i < results.size(); i++) {
         if (results[i].score > results[max_i].score) {
             max_i = i;
         }
     }
+    printf("Max of the max: %s %d %f\n",
+           hash_to_string(results[max_i].hash).c_str(),
+           results[max_i].weight,
+           results[max_i].score);
     return results[max_i];
 }
 
-MotifData find_most_important_motif_in_range(
-    uint32_t start_idx,
-    uint32_t end_idx,
-    const vector<uint16_t> &motif_weights,
-    const vector<uint32_t> &motif_hashes,
-    const StatModel &stat_model,
-    double min_presence,
-    bool use_binom_instead_chi2,
-    const std::vector<uint16_t> &prev_weights,
-    vector<double> &binomial_prob)
+MotifData find_most_important_motif_in_range(uint32_t start_idx,
+                                             uint32_t end_idx,
+                                             const vector<uint16_t> &motif_weights,
+                                             const vector<uint32_t> &motif_hashes,
+                                             const StatModel &stat_model,
+                                             double min_presence,
+                                             bool use_binom_instead_chi2,
+                                             const std::vector<uint16_t> &prev_weights,
+                                             vector<double> &binomial_prob)
 {
     double max_score = -100000.0;
     int64_t max_i = -1;
@@ -48,7 +52,7 @@ MotifData find_most_important_motif_in_range(
                 if (prev_weights.size() && weight == prev_weights[i]) {
                     score = binomial_prob[i];
                 } else {
-                    score = stat_model. binom_by_hash(hash, weight, max_score);
+                    score = stat_model.binom_by_hash(hash, weight, max_score);
                     binomial_prob[i] = score;
                 }
             } else {
@@ -79,14 +83,13 @@ MotifData find_most_important_motif_in_range(
 
 } // namespace
 
-MotifData find_most_important_motif(
-    const std::vector<uint16_t> &motif_weights,
-    const std::vector<uint32_t> &motif_hashes,
-    const StatModel &stat_model,
-    double min_presence,
-    bool use_binom_instead_chi2,
-    const std::vector<uint16_t> &prev_weights,
-    vector<double> &binomial_prob)
+MotifData find_most_important_motif(const std::vector<uint16_t> &motif_weights,
+                                    const std::vector<uint32_t> &motif_hashes,
+                                    const StatModel &stat_model,
+                                    double min_presence,
+                                    bool use_binom_instead_chi2,
+                                    const std::vector<uint16_t> &prev_weights,
+                                    vector<double> &binomial_prob)
 {
     Timer t("find_most_important_motif");
     t.silence();
@@ -99,12 +102,10 @@ MotifData find_most_important_motif(
     int chunks_per_thread = 2;
     int chunks = chunks_per_thread * cpu_thread_count;
     vector<MotifData> results(chunks);
-    int motifs_per_chunk = (total_mots/double(chunks)) + 1;
+    int motifs_per_chunk = (total_mots / double(chunks)) + 1;
 
     for (uint32_t thread_id = 0; thread_id < cpu_thread_count; thread_id++) {
-        threads.push_back(thread(
-        [&]()
-        {
+        threads.push_back(thread([&]() {
             while (true) {
                 auto mot_idx_range_info = counter.get_and_increment_range_info(motifs_per_chunk);
 
@@ -112,23 +113,22 @@ MotifData find_most_important_motif(
                     break;
                 }
 
-                auto res = find_most_important_motif_in_range(
-                                mot_idx_range_info.start,
-                                mot_idx_range_info.end,
-                                ref(motif_weights),
-                                ref(motif_hashes),
-                                ref(stat_model),
-                                min_presence,
-                                use_binom_instead_chi2,
-                                ref(prev_weights),
-                                ref(binomial_prob));
+                auto res = find_most_important_motif_in_range(mot_idx_range_info.start,
+                                                              mot_idx_range_info.end,
+                                                              ref(motif_weights),
+                                                              ref(motif_hashes),
+                                                              ref(stat_model),
+                                                              min_presence,
+                                                              use_binom_instead_chi2,
+                                                              ref(prev_weights),
+                                                              ref(binomial_prob));
 
                 results[mot_idx_range_info.idx] = res;
             }
         }));
     }
 
-    for (uint32_t  i = 0; i < cpu_thread_count; i++) {
+    for (uint32_t i = 0; i < cpu_thread_count; i++) {
         threads[i].join();
     }
 

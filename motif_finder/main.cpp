@@ -15,7 +15,7 @@ using namespace std;
 
 const char *_default_ini_filename = "init.ini";
 
-int main(in, char **)
+int main(int, char **)
 {
     // 1. Read parameters
     ArgoCudaParams params = read_ini_file(_default_ini_filename);

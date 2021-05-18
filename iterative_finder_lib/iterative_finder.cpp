@@ -94,21 +94,26 @@ void ImportantMotifFinder::find_motifs_iterative(vector<uint32_t> &motif_hashes,
     while (true) {
         if (!_found_motifs.empty()) {
             // 1. Mask found motif hashes in sequences
-            printf("1. Mask found motif hashes in sequences\n");
             auto latest_motif_data = _found_motifs_data[_found_motifs.size() - 1];
+            printf("1. Mask found motif hashes in sequences %s\n", hash_to_string(latest_motif_data.hash).c_str());
             motif_hashes[latest_motif_data.index] = 0;
-            mask_motif_hashes(_sequence_hashes, latest_motif_data.hash, _params.complementary);
+            remove_motif_hashes(_sequence_hashes, latest_motif_data.hash);
+            auto s = hashes_to_sequences(_sequence_hashes, _params.complementary);
+            for (const auto &l : s) {
+                printf("%s\n", l.c_str());
+            }
 
             fill(weights.begin(), weights.end(), 0);
         }
         // 2. Run external algorithm
-        printf("2. Run external algorithm\n");
+        printf("2. Run external algorithm %lu %lu\n", motif_hashes.size(), weights.size());
         _external_algorithm(motif_hashes, _sequence_hashes, weights);
 
         if (_found_motifs_data.empty()) {
             // 3. Exclude motif hashes by chi2
             printf("3. Exclude motif hashes by chi2\n");
             exclude_motifs_by_chi2(motif_hashes, weights);
+            printf("3. filtered: %lu %lu\n", motif_hashes.size(), weights.size());
             if (_params.use_binom_instead_chi2) {
                 binomial_prob.resize(motif_hashes.size());
             }
