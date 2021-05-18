@@ -100,7 +100,7 @@ void ImportantMotifFinder::find_motifs_iterative(vector<uint32_t> &motif_hashes,
             auto latest_motif_data = _found_motifs_data[_found_motifs.size() - 1];
             printf("1. Mask found motif hashes in sequences %s\n", hash_to_string(latest_motif_data.hash).c_str());
             motif_hashes[latest_motif_data.index] = 0;
-            remove_motif_hashes(_sequence_hashes, latest_motif_data.hash);
+            remove_motif_hashes(_sequence_hashes, latest_motif_data.hash, _params.complementary);
             auto s = hashes_to_sequences(_sequence_hashes, _params.complementary);
             for (const auto &l : s) {
                 printf("%s\n", l.c_str());

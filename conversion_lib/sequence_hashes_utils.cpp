@@ -32,7 +32,7 @@ int nonempty_sequence_count(const SequenceHashes &sequences_hashes)
     return count;
 }
 
-void mask_motif_hashes(SequenceHashes &sequences_hashes, uint32_t latest_motif)
+void mask_motif_hashes(SequenceHashes &sequences_hashes, uint32_t latest_motif, bool complementary)
 {
     vector<thread> threads;
     SequenceHashes result;
@@ -42,7 +42,7 @@ void mask_motif_hashes(SequenceHashes &sequences_hashes, uint32_t latest_motif)
     int thread_count = thread::hardware_concurrency();
     uint32_t chunk_size = sequences_hashes.hashes.size() / (2 * thread_count);
 
-    auto fn = [&counter, &sequences_hashes, latest_motif, chunk_size](uint32_t) {
+    auto fn = [&counter, &sequences_hashes, complementary, latest_motif, chunk_size](uint32_t) {
         while (true) {
             auto range = counter.get_and_increment_range(chunk_size);
             if (range.first >= sequences_hashes.hashes.size()) {
@@ -51,7 +51,7 @@ void mask_motif_hashes(SequenceHashes &sequences_hashes, uint32_t latest_motif)
 
             for (uint32_t i = range.first; i < range.second; i++) {
                 auto hash = sequences_hashes.hashes[i];
-                if (hash_matches_motif(hash, latest_motif)) {
+                if (hash_matches_motif(hash, latest_motif, complementary)) {
                     sequences_hashes.hashes[i] = 0;
                 }
             }
@@ -61,7 +61,7 @@ void mask_motif_hashes(SequenceHashes &sequences_hashes, uint32_t latest_motif)
     run_parallel(thread_count, fn);
 }
 
-void remove_motif_hashes(SequenceHashes &sequences_hashes, uint32_t latest_motif)
+void remove_motif_hashes(SequenceHashes &sequences_hashes, uint32_t latest_motif, bool complementary)
 {
     vector<thread> threads;
     SequenceHashes result;
@@ -72,7 +72,7 @@ void remove_motif_hashes(SequenceHashes &sequences_hashes, uint32_t latest_motif
         result.seq_begins.push_back(result.hashes.size());
         for (uint32_t j = 0; j < sequences_hashes.lengths[i]; j++) {
             uint32_t hash = sequences_hashes.hashes[j + sequences_hashes.seq_begins[i]];
-            if (hash_matches_motif(hash, latest_motif)) {
+            if (hash_matches_motif(hash, latest_motif, complementary)) {
                 continue;
             }
             result.hashes.push_back(hash);

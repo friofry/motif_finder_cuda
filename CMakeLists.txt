@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(motif_finder)
+project(motif_finder_cpu)
 set(CMAKE_CXX_STANDARD 14)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -33,6 +33,7 @@ if(NOT CUDA_FOUND)
 else()
     add_subdirectory(gpu_lib)
     add_subdirectory(benchmark_gpu)
+    add_subdirectory(motif_finder_gpu)
 endif()
 
-add_subdirectory(motif_finder)
+add_subdirectory(motif_finder_cpu)
