@@ -1,12 +1,11 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.18)
 project(gpu_lib LANGUAGES CUDA)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CUDA_STANDARD 14)
-include_directories(.)
-set(COMMON_NVCC_FLAGS -Xptxas -O3)
+include_directories( .  ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
-set(ARCH "30 35 37 50 52 60 61 70 80 86")
+set(ARCH "30;35;37;50;52;60;61;70")
 
 set(SOURCES
         finder_kernel.cu
@@ -28,7 +27,7 @@ set_target_properties(
         ${PROJECT_NAME}
         PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON
-        CUDA_ARCHITECTURES ${ARCH})
+        CUDA_ARCHITECTURES "${ARCH}")
 
 
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:${COMMON_NVCC_FLAGS}>)

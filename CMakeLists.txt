@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.18)
 project(motif_finder_cpu)
 set(CMAKE_CXX_STANDARD 14)
 
@@ -14,7 +14,6 @@ if(MSVC)
     add_compile_options("/W4")
 else()
     set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG")
-    add_compile_options("-Wall" "-Wextra" "-Werror")
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

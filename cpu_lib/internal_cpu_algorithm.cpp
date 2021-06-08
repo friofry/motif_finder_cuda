@@ -24,7 +24,6 @@ void internal_cpu_algorithm(const SequenceHashes &sequence_hashes,
             if (range.count() == 0) {
                 break;
             }
-            printf("%d %d\n", thread_id, range.start/1000000);
             for (uint32_t i = range.start; i < range.end; i++) {
                 out_motif_weights[i] = get_motif_occurrence(idx_to_hash(i), sequence_hashes);
             }
