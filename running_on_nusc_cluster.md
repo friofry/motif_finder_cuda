@@ -12,15 +12,15 @@ qsub -I -l walltime=00:30:00 -l select=1:ngpus=4:ncpus=12:mem=40gb -q a6500g10q@
 ```
 3. Unpack the sources:
 ```shell
-unzip v1.0.zip -d .
+unzip motif_finder_cuda-1.0.zip -d .
 ```
 4. Navigate to the sourcedir:
 ```shell
-cd motif_finder_cuda
+cd motif_finder_cuda-1.0
 ```
 5. Create build dir and navigate to it:
 ```shell
-mkdir biuld
+mkdir build
 cd build
 ```
 6. Configure project:
@@ -30,7 +30,7 @@ cd build
 
 7. Build:
 ```shell
-/cmake-3.20.3-linux-x86_64/bin/cmake --build . -j
+~/cmake-3.20.3-linux-x86_64/bin/cmake --build . -j
 ```
 
 8. Run:

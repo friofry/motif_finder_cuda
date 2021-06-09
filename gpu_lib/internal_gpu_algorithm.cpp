@@ -16,7 +16,7 @@ void internal_gpu_algorithm(const SequenceHashes &sequence_hashes,
                             const GpuCudaParams &params)
 {
     out_motif_weights.resize(TOTAL_MOT, 0);
-    uint32_t threads = (params.gpu_count > 0) ? params.gpu_count : std::thread::hardware_concurrency();
+    uint32_t threads = (params.gpu_count > 0) ? params.gpu_count : 1;
 
     SafeCounter motifs_counter(TOTAL_MOT);
 

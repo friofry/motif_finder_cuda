@@ -17,7 +17,7 @@ void external_gpu_algorithm(const std::vector<uint32_t> &motif_hashes,
                             const GpuCudaParams &params)
 {
     out_motif_weights.resize(motif_hashes.size(), 0);
-    uint32_t threads = (params.gpu_count > 0) ? params.gpu_count : std::thread::hardware_concurrency();
+    uint32_t threads = (params.gpu_count > 0) ? params.gpu_count : 1;
 
     SafeCounter motifs_counter(motif_hashes.size());
 
