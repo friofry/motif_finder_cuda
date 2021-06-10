@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <cmath>
 
 #include <external_generator_cpu.h>
 #include <fst_reader.h>
@@ -191,11 +192,16 @@ void ImportantMotifFinder::exclude_motifs_by_score(std::vector<uint32_t> &motif_
 
 void ImportantMotifFinder::write_results_old()
 {
+    static double bonferroni_k = log10(TOTAL_MOT);
+
     ofstream f(_output_file.c_str());
     for (uint32_t i = 0; i < _found_motifs_data.size(); i++) {
         const auto &d = _found_motifs_data[i];
         auto rand_w = _stat_model->get_random_weight(d.hash);
-        double score = d.score * (_params.bonferroni_correction ? TOTAL_MOT : 1);
+        double score = d.score;
+        if (_params.bonferroni_correction) {
+            score -= bonferroni_k;
+        }
         f << hash_to_string(d.hash) << "\t";
         f << int(100 * d.weight / _sequence_hashes.count) << "\t";
         f << int(100 * rand_w / _sequence_hashes.count) << "\t";
