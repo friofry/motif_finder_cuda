@@ -5,8 +5,9 @@ using namespace std;
 
 BernulliStatModel::BernulliStatModel(const std::vector<std::string> &sequences,
                                      bool complementary,
-                                     bool use_binom_instead_of_chi2)
-    : StatModel(sequences, complementary, use_binom_instead_of_chi2)
+                                     bool use_binom_instead_of_chi2,
+                                     double binom_correction)
+    : StatModel(sequences, complementary, use_binom_instead_of_chi2, binom_correction)
 {
     // TODO: определиться как считать вероятность для комплементарных последовательностей.
     _frequencies_ratio = calc_frequencies_ratio(sequences, false);

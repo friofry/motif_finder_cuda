@@ -8,10 +8,11 @@
 
 using namespace std;
 
-StatModel::StatModel(const vector<string> &sequences, bool complementary, bool use_binom_instead_of_chi2)
+StatModel::StatModel(const vector<string> &sequences, bool complementary, bool use_binom_instead_of_chi2, double binom_correction)
     : _sequences(sequences)
     , _complementary(complementary)
     , _use_binom_instead_of_chi2(use_binom_instead_of_chi2)
+    , _binom_correction(binom_correction)
 {
     _sequence_nums = sequences_to_nums(sequences);
 
@@ -94,7 +95,7 @@ double StatModel::binom_by_hash(uint32_t hash, uint16_t k, double max_score) con
             }
         }
     }
-    return -log10(res) + base_log;
+    return -log10(res) + base_log + _binom_correction;
 }
 
 double StatModel::score(uint32_t hash, uint16_t weight, double max_score) const

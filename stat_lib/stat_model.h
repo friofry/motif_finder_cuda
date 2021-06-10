@@ -10,7 +10,7 @@
 // Base class for stat models (abstract)
 class StatModel {
 public:
-    StatModel(const std::vector<std::string> &sequences, bool complementary, bool use_binom_instead_of_chi2);
+    StatModel(const std::vector<std::string> &sequences, bool complementary, bool use_binom_instead_of_chi2, double binom_correction);
 
     virtual ~StatModel();
 
@@ -43,6 +43,7 @@ protected:
     bool _complementary;
     bool _use_binom_instead_of_chi2;
     std::vector<double> _log_sums;
+    double _binom_correction;
 };
 
 typedef std::shared_ptr<StatModel> StatModelPtr;

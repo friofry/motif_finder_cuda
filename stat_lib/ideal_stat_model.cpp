@@ -6,8 +6,9 @@ using namespace std;
 
 IdealStatModel::IdealStatModel(const std::vector<std::string> &sequences,
                                bool complementary,
-                               bool use_binom_instead_of_chi2)
-    : StatModel(sequences, complementary, use_binom_instead_of_chi2)
+                               bool use_binom_instead_of_chi2,
+                               double correction)
+    : StatModel(sequences, complementary, use_binom_instead_of_chi2, correction)
     , _frequencies_ratio({ 0.25, 0.25, 0.25, 0.25 })
 {
     _probability_x4 = ::calc_probability_x4(_frequencies_ratio);

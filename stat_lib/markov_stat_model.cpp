@@ -176,8 +176,9 @@ uint32_t extract_kmer_hash(uint32_t hash, int pos, int length)
 MarkovStatModel::MarkovStatModel(const std::vector<std::string> &sequences,
                                  bool complementary,
                                  int level,
-                                 bool use_binom_instead_of_chi2)
-    : StatModel(sequences, complementary, use_binom_instead_of_chi2)
+                                 bool use_binom_instead_of_chi2,
+                                 double binom_correction)
+    : StatModel(sequences, complementary, use_binom_instead_of_chi2, binom_correction)
     , _level(level)
     , _kmer_length(_level + 1)
 {

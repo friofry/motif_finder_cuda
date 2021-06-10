@@ -11,7 +11,8 @@ public:
     MarkovStatModel(const std::vector<std::string> &sequences,
                     bool complementary,
                     int level,
-                    bool use_binom_instead_of_chi2);
+                    bool use_binom_instead_of_chi2,
+                    double binom_correction);
 
     double motif_probability(uint32_t hash) const override;
     double motif_probability_x4(uint32_t hash) const override;

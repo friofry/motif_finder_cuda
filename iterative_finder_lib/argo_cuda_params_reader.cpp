@@ -45,7 +45,7 @@ ArgoCudaParams read_ini_file(const char *inifile)
 {
     auto lines = readlines(inifile);
     ArgoCudaParams result;
-    if (lines.size() < 13) {
+    if (lines.size() < 14) {
         cout << "Ini file should contain exactly 15 parameters. " << inifile << lines.size() << endl;
         return result;
     }

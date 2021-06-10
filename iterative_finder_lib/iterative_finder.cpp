@@ -30,42 +30,56 @@ ImportantMotifFinder::ImportantMotifFinder(const ArgoCudaParams &params,
     }
 
     // 1. Read sequences
-    printf("1. reading sequences\n");
+    printf("Init: Read sequences\n");
     auto sequences = read_fasta(_params.positive_sequences.c_str());
     _sequence_hashes = sequences_to_hashes(sequences, _params.complementary);
 
     // 2. Init stat model
-    printf("2. Init stat model\n");
+    double correction = _params.bonferroni_correction ? -log10(TOTAL_MOT) : 0.0;
+    printf("Init: Create stat model. Real freqs: %d, Markov level: %d, Sequence count: %lu, Complementary: %d, Use binom score: %d, Score correction: %f\n",
+           _params.use_real_nucl_frequences,
+           _params.markov_level,
+           sequences.size(),
+           _params.complementary,
+           _params.use_binom_instead_chi2,
+           correction);
+
     _stat_model = create_stat_model(_params.use_real_nucl_frequences,
                                     _params.markov_level,
                                     sequences,
                                     _params.complementary,
-                                    _params.use_binom_instead_chi2);
+                                    _params.use_binom_instead_chi2,
+                                    correction);
 }
 
 std::vector<uint32_t> ImportantMotifFinder::find()
 {
     // 3. Generate motif hashes
-    printf("3. Generate motif hashes\n");
+    printf("Init: Generating motif hashes...\n");
     vector<uint32_t> motif_hashes;
     generate_external_hashes_cpu(_params.max_motif_prob_by_chance, *_stat_model, _params.complementary, motif_hashes);
-
+    printf("Init: Motif hashes %lu\n", motif_hashes.size());
     // 4. Pre filter hashes
-    printf("4. Pre filter hashes\n");
     if (_params.max_motif_score_contrast > 0) {
         try {
             auto contrast_sequences = read_fasta(_params.contrast_sequences.c_str());
             if (!contrast_sequences.empty()) {
+                double correction = _params.bonferroni_correction ? -log10(TOTAL_MOT) : 0.0;
                 auto contrast_stat_model = create_stat_model(_params.use_real_nucl_frequences,
                                                              _params.markov_level,
                                                              contrast_sequences,
                                                              _params.complementary,
-                                                             _params.use_binom_instead_chi2);
+                                                             _params.use_binom_instead_chi2,
+                                                             correction);
                 auto contrast_hashes = sequences_to_hashes(contrast_sequences, _params.complementary);
                 vector<uint16_t> contrast_occurrences;
+                printf("Init: Finding occurrences in the contrast sequence set...\n");
                 _external_algorithm(motif_hashes, contrast_hashes, contrast_occurrences);
+
+                auto hashes_size = motif_hashes.size();
                 filter_hashes_by_contrast(
                     _params.max_motif_score_contrast, *contrast_stat_model, contrast_occurrences, motif_hashes);
+                printf("Init: Filtered hashes %lu\n", hashes_size - motif_hashes.size());
             }
         } catch (const std::invalid_argument &ex) {
             // nop
@@ -73,13 +87,13 @@ std::vector<uint32_t> ImportantMotifFinder::find()
     }
 
     // 5. Find and exclude sequences
-    printf("5. Find and exclude sequences\n");
+    printf("Init: Find and exclude sequences\n");
     if (_params.chip_seq_percentage > 0.0) {
         find_motifs_iterative(motif_hashes, true);
     }
 
     // 6. Main search
-    printf("6. Main search\n");
+    printf("Main search:\n\n");
     find_motifs_iterative(motif_hashes, false);
     return _found_motifs;
 }
@@ -99,28 +113,28 @@ void ImportantMotifFinder::find_motifs_iterative(vector<uint32_t> &motif_hashes,
         if (!_found_motifs.empty()) {
             // 1. Mask found motif hashes in sequences
             auto latest_motif_data = _found_motifs_data[_found_motifs.size() - 1];
-            printf("    1. Mask found motif hashes in sequences %s\n", hash_to_string(latest_motif_data.hash).c_str());
+            printf("1. Mask found motif hashes in sequences %s\n", hash_to_string(latest_motif_data.hash).c_str());
             motif_hashes[latest_motif_data.index] = 0;
             remove_motif_hashes(_sequence_hashes, latest_motif_data.hash, _params.complementary);
             auto s = hashes_to_sequences(_sequence_hashes, _params.complementary);
             fill(weights.begin(), weights.end(), 0);
         }
         // 2. Run external algorithm
-        printf("    2. Run external algorithm %lu\n", motif_hashes.size());
+        printf("2. Running external algorithm %lu...\n", motif_hashes.size());
         _external_algorithm(motif_hashes, _sequence_hashes, weights);
 
         if (_found_motifs_data.empty()) {
             // 3. Exclude motif hashes by score
-            printf("    3. Exclude motif hashes by score\n");
+            printf("3. Excluding motif hashes by score...\n");
             exclude_motifs_by_score(motif_hashes, weights);
-            printf("    3. filtered: %lu %lu\n", motif_hashes.size(), weights.size());
+            printf("3. Motifs left: %lu\n", motif_hashes.size());
             if (_params.use_binom_instead_chi2) {
                 binomial_prob.resize(motif_hashes.size());
             }
         }
 
         // 4. Find most significant motif
-        printf("    4. Find most significant motif\n");
+        printf("4. Find motif with max score\n");
         auto max_motif_data = find_most_important_motif(weights,
                                                         motif_hashes,
                                                         *_stat_model,
