@@ -19,12 +19,15 @@
 using namespace std;
 
 ImportantMotifFinder::ImportantMotifFinder(const ArgoCudaParams &params,
-                                           const FindOccurrencesAlgorithm &external_algorithm,
-                                           const char *output_file)
+                                           const FindOccurrencesAlgorithm &external_algorithm)
     : _params(params)
     , _external_algorithm(external_algorithm)
-    , _output_file(output_file)
+    , _output_file(params.output_file)
 {
+    if (_output_file.empty()) {
+        _output_file = "a.txt";
+    }
+
     if (params.use_old_motifs_file) {
         throw invalid_argument("use_old_motifs_file is not supported yet.\n");
     }
@@ -206,27 +209,20 @@ void ImportantMotifFinder::exclude_motifs_by_score(std::vector<uint32_t> &motif_
 
 void ImportantMotifFinder::write_results_old()
 {
-    static double bonferroni_k = log10(TOTAL_MOT);
-
     ofstream f(_output_file.c_str());
     for (uint32_t i = 0; i < _found_motifs_data.size(); i++) {
         const auto &d = _found_motifs_data[i];
         auto rand_w = _stat_model->get_random_weight(d.hash);
-        double score = d.score;
-        if (_params.bonferroni_correction) {
-            score -= bonferroni_k;
-        }
         f << hash_to_string(d.hash) << "\t";
         f << int(100 * d.weight / _sequence_hashes.count) << "\t";
         f << int(100 * rand_w / _sequence_hashes.count) << "\t";
-        f << (_params.bonferroni_correction ? score : int(score)) << endl;
+        f << (_params.int_results ? int(d.score) : d.score) << endl;
     }
 }
 
 std::vector<uint32_t> find_important_motifs(const ArgoCudaParams &params,
-                                            const FindOccurrencesAlgorithm &external_algorithm,
-                                            const char *output_file)
+                                            const FindOccurrencesAlgorithm &external_algorithm)
 {
-    ImportantMotifFinder finder(params, external_algorithm, output_file);
+    ImportantMotifFinder finder(params, external_algorithm);
     return finder.find();
 }

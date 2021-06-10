@@ -17,8 +17,7 @@ using FindOccurrencesAlgorithm = std::function<void(const std::vector<uint32_t> 
 class ImportantMotifFinder {
 public:
     ImportantMotifFinder(const ArgoCudaParams &params,
-                         const FindOccurrencesAlgorithm &external_algorithm,
-                         const char *output_file = "a.txt");
+                         const FindOccurrencesAlgorithm &external_algorithm);
     std::vector<uint32_t> find();
 
 private:
@@ -37,5 +36,4 @@ private:
 };
 
 std::vector<uint32_t> find_important_motifs(const ArgoCudaParams &params,
-                                            const FindOccurrencesAlgorithm &external_algorithm,
-                                            const char *output_file = "a.txt");
+                                            const FindOccurrencesAlgorithm &external_algorithm);

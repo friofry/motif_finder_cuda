@@ -19,5 +19,7 @@ struct ArgoCudaParams {
     double max_motif_score_contrast{ 0.0 };     // Maximum score in a contrast set of sequences
     double min_motif_chi2{ 0.0 };               // [deprecated]
     bool bonferroni_correction{ false };        // Output results with Bonferroni correction [0, 1]
+    std::string output_file;                    // Output file
+    bool int_results { true };                  // Output integer scores
 };
 // clang-format on

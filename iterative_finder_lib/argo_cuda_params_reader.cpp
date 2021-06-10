@@ -45,8 +45,8 @@ ArgoCudaParams read_ini_file(const char *inifile)
 {
     auto lines = readlines(inifile);
     ArgoCudaParams result;
-    if (lines.size() < 14) {
-        cout << "Ini file should contain exactly 15 parameters. " << inifile << lines.size() << endl;
+    if (lines.size() < 17) {
+        cout << "Ini file should contain exactly 17 parameters. " << inifile << lines.size() << endl;
         return result;
     }
 
@@ -68,6 +68,8 @@ ArgoCudaParams read_ini_file(const char *inifile)
     result.max_motif_score_contrast = stod(lines[12]);
     result.min_motif_chi2 = 0; // [deprecated] stod(lines[13]);
     result.bonferroni_correction = atoi(lines[14].c_str());
+    result.output_file = get_first_word(lines[15]);
+    result.int_results = atoi(lines[16].c_str());
     return result;
 }
 
@@ -79,7 +81,7 @@ void print_argo_cuda_params(const ArgoCudaParams &params)
     cout << params.max_motif_prob_by_chance * 100
          << "\t\tMaximum presence of motif for random reasons in the positive set of sequences [0-100]" << endl;
     cout << params.min_motif_presence * 100
-         << "\t\tMinimum presence of motif for random reasons in a positive set of sequences [0-100]" << endl;
+         << "\t\tMinimum presence of motif in a positive set of sequences [0-100]" << endl;
     cout << params.positive_sequences << "\tFile with positive set of sequences" << endl;
     cout << (int)params.use_real_nucl_frequences
          << "\t\t0 - neutral frequencies, 1 - real nucleotide frequencies in the set of sequences [0, 1]" << endl;
@@ -96,4 +98,6 @@ void print_argo_cuda_params(const ArgoCudaParams &params)
     cout << params.max_motif_score_contrast << "\t\tMaximum score in a contrast set of sequences" << endl;
     cout << params.min_motif_chi2 << "\t\t[deprecated]" << endl;
     cout << params.bonferroni_correction << "\t\tOutput results with Bonferroni correction [0, 1]" << endl;
+    cout << params.output_file << "\t\tResults file [0, 1]" << endl;
+    cout << params.int_results << "\t\tWrite integer results. 0 - real values, 1 - integer [0, 1]" << endl;
 }
