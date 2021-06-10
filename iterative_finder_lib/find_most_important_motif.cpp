@@ -19,7 +19,7 @@ MotifData gather_most_important_motif(const vector<MotifData> &results)
         }
     }
     if (results[max_i].score > 0) {
-        printf("Max of the max: %s %d %f\n",
+        printf("    Max score: %s %d %f\n",
                hash_to_string(results[max_i].hash).c_str(),
                results[max_i].weight,
                results[max_i].score);

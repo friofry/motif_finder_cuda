@@ -56,17 +56,17 @@ ArgoCudaParams read_ini_file(const char *inifile)
     result.min_motif_presence = stod(lines[3]) / 100.0;
     result.positive_sequences = get_first_word(lines[4]);
     result.use_real_nucl_frequences = atoi(lines[5].c_str());
-    result.use_binom_instead_chi2 = atoi(lines[6].c_str());
+    result.use_binom_instead_chi2 = true; // [deprecated] atoi(lines[6].c_str());
     result.motif_to_find = atoi(lines[7].c_str());
     if (result.motif_to_find == 0) {
         result.motif_to_find = 1000000;
     }
     result.markov_level = atoi(lines[8].c_str());
-    result.use_old_motifs_file = atoi(lines[9].c_str());
-    result.chip_seq_percentage = stod(lines[10]) / 100.0;
+    result.use_old_motifs_file = false; // [deprecated] atoi(lines[9].c_str());
+    result.chip_seq_percentage = 0; // [deprecated] stod(lines[10]) / 100.0;
     result.contrast_sequences = get_first_word(lines[11]);
     result.max_motif_score_contrast = stod(lines[12]);
-    result.min_motif_chi2 = stod(lines[13]);
+    result.min_motif_chi2 = 0; // [deprecated] stod(lines[13]);
     result.bonferroni_correction = atoi(lines[14].c_str());
     return result;
 }
