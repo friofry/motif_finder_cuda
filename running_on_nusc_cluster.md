@@ -23,10 +23,18 @@ cd motif_finder_cuda-1.0
 mkdir build
 cd build
 ```
-6. Configure project:
+6. Configure:
+
+* Add to CUDA_COMPILER to path:
 ```shell
-~/cmake-3.20.3-linux-x86_64/bin/cmake -DCMAKE_BUILD_TYPE=Release ..
+export PATH="/opt/shared/nvidia/cuda-10.2.89/bin:$PATH";
 ```
+
+* Configure the project:
+```shell
+export CC=gcc-8; export CXX=g++-8; ~/cmake-3.20.3-linux-x86_64/bin/cmake -DCMAKE_CUDA_HOST_COMPILER=/usr/bin/g++-8 -DCUDA_TOOLKIT_ROOT_DIR=/opt/shared/nvidia/cuda-10.2.89/  -DCMAKE_BUILD_TYPE=Release ..
+```
+
 
 7. Build:
 ```shell
@@ -35,11 +43,11 @@ cd build
 
 8. Run:
 * Copy test data:
-```asm
+```shell
 cp ../motif_finder_gpu/init.ini ../motif_finder_gpu/test_12.fst motif_finder_gpu/
 ```
 * Run:
-```asm
+```shell
 cd motif_finder_gpu
 ./motif_finder_gpu
 ```
