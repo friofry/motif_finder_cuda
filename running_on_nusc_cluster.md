@@ -25,12 +25,16 @@ cd build
 ```
 6. Configure:
 
+Easy way: `~/cmake-3.20.3-linux-x86_64/bin/cmake -DCMAKE_BUILD_TYPE=Release ..`
+
+If it doesn't work:
 * Add to CUDA_COMPILER to path:
 ```shell
 export PATH="/opt/shared/nvidia/cuda-10.2.89/bin:$PATH";
 ```
 
 * Configure the project:
+
 ```shell
 export CC=gcc-8; export CXX=g++-8; ~/cmake-3.20.3-linux-x86_64/bin/cmake -DCMAKE_CUDA_HOST_COMPILER=/usr/bin/g++-8 -DCUDA_TOOLKIT_ROOT_DIR=/opt/shared/nvidia/cuda-10.2.89/  -DCMAKE_BUILD_TYPE=Release ..
 ```
