@@ -23,13 +23,12 @@ public:
 private:
     void find_motifs_iterative(std::vector<uint32_t> &motif_hashes, bool exclude_sequence = false);
     void exclude_motifs_by_score(std::vector<uint32_t> &motif_hashes, std::vector<uint16_t> &weights) const;
-    void write_results_old();
+    void write_results();
 
 private:
     ArgoCudaParams _params;
     const FindOccurrencesAlgorithm &_external_algorithm;
     StatModelPtr _stat_model;
-    std::vector<uint32_t> _found_motifs;
     std::vector<MotifData> _found_motifs_data;
     std::string _output_file;
     SequenceHashes _sequence_hashes;

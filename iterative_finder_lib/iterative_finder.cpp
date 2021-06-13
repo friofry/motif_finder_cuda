@@ -14,7 +14,9 @@
 #include <sequences_to_hashes.h>
 
 #include "create_stat_model.h"
+#include "filter_shifted_motifs.h"
 #include "find_most_important_motif.h"
+#include "motif_data_utils.h"
 
 using namespace std;
 
@@ -98,7 +100,7 @@ std::vector<uint32_t> ImportantMotifFinder::find()
     // 6. Main search
     printf("Main search:\n\n");
     find_motifs_iterative(motif_hashes, false);
-    return _found_motifs;
+    return get_hashes(_found_motifs_data);
 }
 void ImportantMotifFinder::find_motifs_iterative(vector<uint32_t> &motif_hashes, bool exclude_sequence)
 {
@@ -106,16 +108,16 @@ void ImportantMotifFinder::find_motifs_iterative(vector<uint32_t> &motif_hashes,
     int minimum_sequences = _params.chip_seq_percentage * _sequence_hashes.count;
 
     vector<uint16_t> weights;
-    if (_found_motifs.size() >= static_cast<uint32_t>(_params.motif_to_find)) {
+    if (_found_motifs_data.size() >= static_cast<uint32_t>(_params.motif_to_find)) {
         return;
     }
 
     vector<double> binomial_prob;
     vector<uint16_t> prev_weights;
     while (true) {
-        if (!_found_motifs.empty()) {
+        if (!_found_motifs_data.empty()) {
             // 1. Mask found motif hashes in sequences
-            auto latest_motif_data = _found_motifs_data[_found_motifs.size() - 1];
+            auto latest_motif_data = _found_motifs_data[_found_motifs_data.size() - 1];
             printf("1. Mask found motif hashes in sequences %s\n", hash_to_string(latest_motif_data.hash).c_str());
             motif_hashes[latest_motif_data.index] = 0;
             remove_motif_hashes(_sequence_hashes, latest_motif_data.hash, _params.complementary);
@@ -154,10 +156,9 @@ void ImportantMotifFinder::find_motifs_iterative(vector<uint32_t> &motif_hashes,
             break;
         }
 
-        _found_motifs.push_back(max_motif_data.hash);
         _found_motifs_data.push_back(max_motif_data);
-        write_results_old();
-        if (_found_motifs.size() >= static_cast<uint32_t>(_params.motif_to_find)) {
+        write_results();
+        if (_found_motifs_data.size() >= static_cast<uint32_t>(_params.motif_to_find)) {
             break;
         }
 
@@ -207,15 +208,19 @@ void ImportantMotifFinder::exclude_motifs_by_score(std::vector<uint32_t> &motif_
     weights.swap(weights_new);
 }
 
-void ImportantMotifFinder::write_results_old()
+void ImportantMotifFinder::write_results()
 {
     ofstream f(_output_file.c_str());
+    auto hashes = get_hashes(_found_motifs_data);
     for (uint32_t i = 0; i < _found_motifs_data.size(); i++) {
+        if (_params.skip_shifted_results && hash_matches(_found_motifs_data[i].hash, hashes, _params.complementary)) {
+            continue;
+        }
         const auto &d = _found_motifs_data[i];
         auto rand_w = _stat_model->get_random_weight(d.hash);
         f << hash_to_string(d.hash) << "\t";
         f << int(100 * d.weight / _sequence_hashes.count) << "\t";
-        f << int(100 * rand_w / _sequence_hashes.count) << "\t";
+        f << int(100 * rand_w / _sequence_hashes.count) << "\t5";
         f << (_params.int_results ? int(d.score) : d.score) << endl;
     }
 }

@@ -70,6 +70,7 @@ ArgoCudaParams read_ini_file(const char *inifile)
     result.bonferroni_correction = atoi(lines[14].c_str());
     result.output_file = get_first_word(lines[15]);
     result.int_results = atoi(lines[16].c_str());
+    result.skip_shifted_results = atoi(lines[17].c_str());
     return result;
 }
 
@@ -100,4 +101,5 @@ void print_argo_cuda_params(const ArgoCudaParams &params)
     cout << params.bonferroni_correction << "\t\tOutput results with Bonferroni correction [0, 1]" << endl;
     cout << params.output_file << "\t\tResults file [0, 1]" << endl;
     cout << params.int_results << "\t\tWrite integer results. 0 - real values, 1 - integer [0, 1]" << endl;
+    cout << params.skip_shifted_results << "\t\tSkip motifs that coincide with the previous ones with a shift [0, 1]" << endl << endl;
 }

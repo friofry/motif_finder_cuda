@@ -20,6 +20,7 @@ struct ArgoCudaParams {
     double min_motif_chi2{ 0.0 };               // [deprecated]
     bool bonferroni_correction{ false };        // Output results with Bonferroni correction [0, 1]
     std::string output_file;                    // Output file
-    bool int_results { true };                  // Output integer scores
+    bool int_results { true };                  // Output integer scores [0 - real, 1 - int]
+    bool skip_shifted_results { false };        // Skip motifs that coincide with the previous ones with a shift [0, 1]
 };
 // clang-format on

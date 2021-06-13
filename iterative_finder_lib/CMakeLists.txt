@@ -16,7 +16,10 @@ add_library(iterative_finder_lib
         find_most_important_motif.cpp
         find_most_important_motif.h
         motif_data.h
-        )
+        filter_shifted_motifs.cpp
+        filter_shifted_motifs.h
+        motif_data_utils.cpp
+        motif_data_utils.h)
 
 target_link_libraries(iterative_finder_lib
         lib::common
