@@ -30,6 +30,9 @@ add_subdirectory(cpu_lib)
 add_subdirectory(iterative_finder_lib)
 add_subdirectory(benchmark_cpu)
 
+# Tests
+# add_subdirectory(iterative_finder_lib_tests)
+
 find_package( CUDA 10.0 QUIET )
 if(NOT CUDA_FOUND)
     message("CUDA 10.0 not found")

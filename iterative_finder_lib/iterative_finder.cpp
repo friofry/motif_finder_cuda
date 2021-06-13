@@ -220,7 +220,7 @@ void ImportantMotifFinder::write_results()
         auto rand_w = _stat_model->get_random_weight(d.hash);
         f << hash_to_string(d.hash) << "\t";
         f << int(100 * d.weight / _sequence_hashes.count) << "\t";
-        f << int(100 * rand_w / _sequence_hashes.count) << "\t5";
+        f << int(100 * rand_w / _sequence_hashes.count) << "\t";
         f << (_params.int_results ? int(d.score) : d.score) << endl;
     }
 }

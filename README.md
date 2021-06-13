@@ -49,20 +49,20 @@ The binary is in `motif_finder_gpu` folder
 8		Minimum score
 35		Maximum presence of motif for random reasons in the positive set of sequences [0-100]
 5		Minimum presence of motif in the positive set of sequences [0-100]
-test_12.fst		File with positive set of sequences
+test_12.fst	File with positive set of sequences
 0		0 - neutral frequencies, 1 - real nucleotide frequencies in the set of sequences [0, 1]
-0		deprecated
+0		[deprecated]
 10		Maximum number of result motifs. 0 - reveal all significant motifs [0, ]
 0		Markov chain order (0-Bernulli, 1-dinucleotide, 2-trinucleotide), when using real nucleotide frequencies [0-3]
-0		deprecated
-0		deprecated
+0		[deprecated]
+0		[deprecated]
 0.fst		File with contrast set of sequences
 90		Maximum score in a contrast set of sequences
-0       deprecated
-0       Output results with Bonferroni correction. 0 - without correction , 1 - use correction [0, 1]
-a.txt   Output file
-0       Output results in integer format (0 - real values, 1 - integer values). [0, 1]
-
+0               [deprecated]
+0               Output results with Bonferroni correction. 0 - without correction , 1 - use correction [0, 1]
+a.txt           Output file
+0               Output results in integer format (0 - real values, 1 - integer values). [0, 1]
+1               Skip motifs that coincide with the previous ones with a shift. [0, 1]
 ```
 
 ## Run motif_finder_gpu

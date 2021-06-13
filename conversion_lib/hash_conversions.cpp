@@ -24,8 +24,8 @@ uint32_t string_to_hash(const char *s)
     uint32_t hash = 0;
     uint32_t mult = 1;
     for (int j = MOTIV_LEN - 1; j >= 0; j--) {
-        uint8_t numeric_letter = to_num(s[j]);
-        hash += (1 << numeric_letter) * mult;
+        uint8_t numeric_letter = convert_to_code(s[j]);
+        hash += numeric_letter * mult;
         mult *= HASH_BASE;
     }
     return hash;
@@ -36,8 +36,8 @@ uint32_t string_to_hash_compl(const char *s)
     uint32_t hash = 0;
     uint32_t mult = 1;
     for (int j = 0; j < MOTIV_LEN; j++) {
-        uint8_t numeric_letter = to_num(s[j]);
-        hash += (1 << numeric_letter) * mult;
+        uint8_t numeric_letter = convert_to_code(s[j]);
+        hash += numeric_letter * mult;
         mult *= HASH_BASE;
     }
     return to_compl_hash(hash);

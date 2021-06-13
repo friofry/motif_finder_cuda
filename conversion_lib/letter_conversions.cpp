@@ -28,7 +28,7 @@ const char _symbols[ALPH_SIZE + 1] = {
 };
 } // namespace
 
-inline uint8_t convert_to_code(char x)
+uint8_t convert_to_code(char x)
 {
     switch (x) {
     case 'A':
