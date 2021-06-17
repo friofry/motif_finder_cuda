@@ -15,4 +15,5 @@ MotifData find_most_important_motif(
     double min_presence,
     bool use_binom_instead_chi2,
     const std::vector<uint16_t> &prev_weights,
-    std::vector<double> &binomial_prob);
+    std::vector<double> &binomial_prob,
+    bool recalc_probs);

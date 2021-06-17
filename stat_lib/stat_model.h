@@ -12,6 +12,7 @@ class StatModel {
 public:
     StatModel(const std::vector<std::string> &sequences, bool complementary, bool use_binom_instead_of_chi2, double binom_correction);
 
+    static const int score_difference_drop = 1000;
     virtual ~StatModel();
 
     // Вероятность встретить мотив по случайным причинам

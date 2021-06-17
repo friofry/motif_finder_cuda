@@ -35,7 +35,8 @@ MotifData find_most_important_motif_in_range(uint32_t start_idx,
                                              double min_presence,
                                              bool use_binom_instead_chi2,
                                              const std::vector<uint16_t> &prev_weights,
-                                             vector<double> &binomial_prob)
+                                             vector<double> &binomial_prob,
+                                             bool recalc_probs)
 {
     double max_score = -100000.0;
     int64_t max_i = -1;
@@ -51,7 +52,7 @@ MotifData find_most_important_motif_in_range(uint32_t start_idx,
         if (weight >= min_presence && weight > weight_random) {
             double score = 0.0;
             if (use_binom_instead_chi2) {
-                if (prev_weights.size() && weight == prev_weights[i]) {
+                if (!recalc_probs && prev_weights.size() && weight == prev_weights[i]) {
                     score = binomial_prob[i];
                 } else {
                     score = stat_model.binom_by_hash(hash, weight, max_score);
@@ -91,7 +92,8 @@ MotifData find_most_important_motif(const std::vector<uint16_t> &motif_weights,
                                     double min_presence,
                                     bool use_binom_instead_chi2,
                                     const std::vector<uint16_t> &prev_weights,
-                                    vector<double> &binomial_prob)
+                                    vector<double> &binomial_prob,
+                                    bool recalc_probs)
 {
     Timer t("find_most_important_motif");
     t.silence();
@@ -123,7 +125,8 @@ MotifData find_most_important_motif(const std::vector<uint16_t> &motif_weights,
                                                               min_presence,
                                                               use_binom_instead_chi2,
                                                               ref(prev_weights),
-                                                              ref(binomial_prob));
+                                                              ref(binomial_prob),
+                                                              recalc_probs);
 
                 results[mot_idx_range_info.idx] = res;
             }

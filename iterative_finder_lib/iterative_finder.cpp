@@ -1,9 +1,9 @@
 #include "iterative_finder.h"
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
-#include <cmath>
 
 #include <external_generator_cpu.h>
 #include <fst_reader.h>
@@ -41,7 +41,8 @@ ImportantMotifFinder::ImportantMotifFinder(const ArgoCudaParams &params,
 
     // 2. Init stat model
     double correction = _params.bonferroni_correction ? -log10(TOTAL_MOT) : 0.0;
-    printf("Init: Create stat model. Real freqs: %d, Markov level: %d, Sequence count: %lu, Complementary: %d, Use binom score: %d, Score correction: %f\n",
+    printf("Init: Create stat model. Real freqs: %d, Markov level: %d, Sequence count: %lu, Complementary: %d, Use "
+           "binom score: %d, Score correction: %f\n",
            _params.use_real_nucl_frequences,
            _params.markov_level,
            sequences.size(),
@@ -114,6 +115,8 @@ void ImportantMotifFinder::find_motifs_iterative(vector<uint32_t> &motif_hashes,
 
     vector<double> binomial_prob;
     vector<uint16_t> prev_weights;
+    bool recalc_probs = _params.use_binom_instead_chi2;
+    double prob_calc_score = -100000;
     while (true) {
         if (!_found_motifs_data.empty()) {
             // 1. Mask found motif hashes in sequences
@@ -146,7 +149,18 @@ void ImportantMotifFinder::find_motifs_iterative(vector<uint32_t> &motif_hashes,
                                                         min_presence,
                                                         _params.use_binom_instead_chi2,
                                                         prev_weights,
-                                                        binomial_prob);
+                                                        binomial_prob,
+                                                        recalc_probs);
+        if (_params.use_binom_instead_chi2) {
+            if (recalc_probs) {
+                prob_calc_score = max_motif_data.score;
+                recalc_probs = false;
+            } else if (prob_calc_score < 0
+                       || (abs(prob_calc_score - max_motif_data.score) >= StatModel::score_difference_drop / 2)) {
+                recalc_probs = true;
+            }
+        }
+
         if (_params.use_binom_instead_chi2) {
             prev_weights.resize(weights.size());
             std::copy(weights.begin(), weights.end(), prev_weights.begin());

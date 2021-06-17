@@ -76,7 +76,7 @@ double StatModel::binom_by_hash(uint32_t hash, uint16_t k, double max_score) con
         }
     }
 
-    if (base_log + 500 < max_score) {
+    if (base_log + StatModel::score_difference_drop < max_score) {
         return base_log;
     }
     // 2. find result
