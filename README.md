@@ -86,3 +86,17 @@ See details [here](bencharking_performance.md)
 
 # Running on NUSC cluster
 See details [here](running_on_nusc_cluster.md)
+
+___ 
+# License
+MotifFinder is licensed under the MIT License. MotifFinder also uses a number of third party libraries:
+
+### cxxopts
+https://github.com/jarro2783/cxxopts
+https://github.com/jarro2783/cxxopts/blob/master/LICENSE
+(MIT license)
+
+### json for modern C++
+https://github.com/nlohmann/json
+https://github.com/nlohmann/json/blob/develop/LICENSE.MIT
+(MIT license)
