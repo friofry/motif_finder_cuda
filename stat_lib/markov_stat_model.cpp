@@ -142,7 +142,7 @@ vector<uint32_t> calc_iupac_hashes_counts(const unordered_map<uint32_t, int> &nu
             return true;
         };
 
-        // Перебор для каждой позиции всех вариантов iupac кодов.
+        // Try all iupac code variants for each position
         iterate_slots(kmer_length, iupacs_per_nucl, update_all_iupacs);
     }
     return iupac_hashes_counter;
@@ -160,12 +160,12 @@ int kmers_in_sequences_by_length(const SequenceNums &sequence_nums, int kmer_len
 
 uint32_t extract_kmer_hash(uint32_t hash, int pos, int length)
 {
-    // Сделать маску
+    // Prepare mask
     uint32_t mask = 0xFFFFFFFF;
     int shift = (MOTIV_LEN - length) * 4;
     mask >>= shift;
 
-    // Выделить хэш и сдвинуть в начало
+    // Find hash and shift bits to the beginning
     int shift_pos = shift - pos * 4;
     mask <<= shift_pos;
     return (mask & hash) >> shift_pos;
@@ -188,14 +188,14 @@ MarkovStatModel::MarkovStatModel(const std::vector<std::string> &sequences,
         throw invalid_argument("Supported levels for MarkovStatModel [1-4]");
     }
 
-    // === посчитать вероятности
+    // === calc probability
     uint32_t hashes_count = number_of_hashes(_kmer_length);
     _probabilities.resize(hashes_count, _default_prob);
 
     calc_probabilities(_kmer_length);
     calc_probabilities(_kmer_length - 1);
 
-    // === предарссчитанные данные
+    // === precalc data
     _symbols_in_key1 = (MOTIV_LEN - _kmer_length) / 2 + 1;
     _symbols_in_key2 = MOTIV_LEN - _kmer_length - _symbols_in_key1 + 1;
     _key_size1 = _symbols_in_key1 + _kmer_length - 1;
@@ -251,20 +251,20 @@ void MarkovStatModel::precalc_probabilities(int symbols_in_key, std::vector<doub
         return true;
     };
 
-    // Перебор для каждой позиции всех вариантов iupac кодов.
+    // try all iupac codes for each pos
     iterate_slots(key_size, ALPH_SIZE, precalc_key);
 }
 
 void MarkovStatModel::calc_probabilities(uint32_t kmer_length)
 {
-    // Встречаемость нуклеотидов k-меров из входных последовательностях
+    // Occurrence of k-mer nucleotides from the input sequences
     unordered_map<uint32_t, int> nucl_hash_counters;
     increment_nucl_hashes(_sequence_nums, nucl_hash_counters, kmer_length);
 
-    // Встречаемость iupac k-меров через встречаемость k-меров нуклеотидных
+    // Get occurrence of iupac k-mers from nucleotide k-mers occurrences
     vector<uint32_t> iupac_hashes_counters = calc_iupac_hashes_counts(nucl_hash_counters, kmer_length);
 
-    // Вероятность iupac k-меров
+    // Get occurrence of iupac k-mers
     double total_kmers_count = static_cast<double>(kmers_in_sequences_by_length(_sequence_nums, kmer_length));
 
     for (uint32_t hash = 0; hash < iupac_hashes_counters.size(); hash++) {

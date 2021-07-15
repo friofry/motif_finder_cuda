@@ -31,7 +31,7 @@ uint32_t hash_to_idx_with_check(uint32_t hash, bool &out_ok)
 
 } // namespace
 
-// Преобразование индекса в хэш
+// speed up index to hash conversion
 vector<uint32_t> calc_hash_x4()
 {
     uint32_t total_idx_4 = 15 * 15 * 15 * 15;
@@ -63,13 +63,13 @@ vector<uint32_t> calc_idx_x4()
     return result_indexes;
 }
 
-// посчитать хэш по индексу
+// convert index to hash
 uint32_t idx_to_hash_x4(uint32_t idx, const vector<uint32_t> &hash_x4)
 {
     return hash_x4[idx % HI_PART_15_MIN] + (hash_x4[idx / HI_PART_15_MIN] << 16);
 }
 
-// посчитать индексу по хэшу
+//  convert hash to index
 uint32_t hash_to_idx_x4(uint32_t hash, const vector<uint32_t> &idx_x4)
 {
     return idx_x4[hash & 0xFFFF] + (idx_x4[hash >> 16] * HI_PART_15_MIN);

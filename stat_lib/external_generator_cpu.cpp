@@ -19,7 +19,7 @@ void generate_external_indexes_cpu(double max_motif_prob_simple,
 {
     result.reserve(TOTAL_MOT);
 
-    /// предрассчитать хэши для всех возможны 4-буквенных индексов
+    // precalculate hashes for 4-digit indexes
     auto hash_x4 = calc_hash_x4();
 
     for (uint32_t i = 0; i < TOTAL_MOT; i++) {
@@ -75,7 +75,7 @@ void generate_hashes_thread(vector<uint32_t> &result_hashes,
         }
         if (complementary) {
             uint32_t compl_hash = to_compl_hash_reverse(hash);
-            // Мотив уже рассматривался (комплементарный)
+            // the complementary motif has been already processed
             if (compl_hash < hash) {
                 continue;
             }
@@ -212,7 +212,7 @@ void generate_external_hashes_cpu(double max_motif_prob_by_chance,
     t.silence();
     int hashes_per_sequence = stat_model.get_avg_hashes_per_sequence();
 
-    // Граничное значение вероятности появления мотива в позиции
+    // Boundary value of the probability of occurrence of the motif in the position
     double probability_border = calculate_border_motif_probability(max_motif_prob_by_chance, hashes_per_sequence);
     // printf("prob border %f %u: %f\n", max_motif_prob_by_chance, hashes_per_sequence, probability_border);
 

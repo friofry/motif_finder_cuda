@@ -37,7 +37,7 @@ int StatModel::get_avg_hashes_per_sequence() const
 double StatModel::get_random_weight(uint32_t hash) const
 {
     double p = motif_probability_x4(hash);
-    //Ожидаемая встречаемость мотива в выборке в штуках
+    // Expected occurrence of motif in the sequences (count)
     return _sequence_nums.count * (1.0 - exp(_hashes_per_sequence * log(1.0 - p)));
 }
 

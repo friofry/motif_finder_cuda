@@ -125,7 +125,7 @@ double motif_probability_x4(unsigned int motif_hash, const std::vector<double> &
     return prob;
 }
 
-/// значимость
+/// chi2 criteria
 double importance_chi2(
     unsigned int motif_hash,
     unsigned int weight,
