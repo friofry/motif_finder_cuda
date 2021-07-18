@@ -1,0 +1,1 @@
+The file “74.fst” contains 100 randomly generated DNA sequences, 30% of which contain the RCYCGTNT motif (AIC = 1.5). The result of the Argo_CUDA program is in “a_74.txt”.
